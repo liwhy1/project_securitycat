@@ -66,15 +66,19 @@ public class GameManager : MonoBehaviour
         // initialize new apps
         foreach (var app in appData)
         {
+            // apply variables to appmanager
             GameObject newApp = Instantiate(appInstance, new Vector3(0, 0, 0), Quaternion.identity);
-            newApp.GetComponent<AppManager>().appTitle.GetComponent<TMP_Text>().text = app.appName;
-            newApp.GetComponent<AppManager>().appLabel.GetComponent<TMP_Text>().text = app.appName;
-            newApp.GetComponent<AppManager>().appIcon.GetComponent<Image>().sprite = app.appIcon;
+            var currentManager = newApp.GetComponent<AppManager>();
+            currentManager.appTitle.GetComponent<TMP_Text>().text = app.appName;
+            currentManager.appLabel.GetComponent<TMP_Text>().text = app.appName;
+            currentManager.appIcon.GetComponent<Image>().sprite = app.appIcon;
             GameObject newElements = Instantiate(app.appElements, new Vector3(0, 0, 0), Quaternion.identity);
+            newElements.name = "Elements";
             app.appElements.SetActive(false);
             newElements.SetActive(true);
-            newElements.transform.SetParent(newApp.GetComponent<AppManager>().appContent.transform);
+            newElements.transform.SetParent(currentManager.appContent.transform);
             newElements.transform.SetSiblingIndex(0);
+            currentManager.appElements = newElements;
             newApp.SetActive(true);
             newApp.name = app.appName;
             newApp.transform.SetParent(canvasObject);
@@ -120,15 +124,19 @@ public class GameManager : MonoBehaviour
 
     public void NavigationInteractionHandler(GameObject navigatorObject)
     {
-        // handle navigation action
-        if (navigatorObject.name.Contains("Back") || navigatorObject.name.Contains("Home"))
+        // handle navigation actions
+        if (activeApp != null && navigatorObject.GetComponent<Image>().color.a != 0)
         {
-            // check if there is an app currently active & if the current button action is pointerup
-            if (activeApp != null && navigatorObject.GetComponent<Image>().color.a != 0)
+            if (navigatorObject.name.Contains("Back"))
             {
-                StartCoroutine(activeApp.GetComponent<AppManager>().ButtonInteractionHandler(true));
+                activeApp.GetComponent<AppManager>().BackNavigationHandler();
+            }
+            else if (navigatorObject.name.Contains("Home"))
+            {
+                StartCoroutine(activeApp.GetComponent<AppManager>().TransitionAnimationHandler("out"));
             }
         }
+
 
         // handle button color
         Color newColor = navigatorObject.GetComponent<Image>().color;

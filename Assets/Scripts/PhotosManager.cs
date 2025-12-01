@@ -22,6 +22,5 @@ public class PhotosManager : MonoBehaviour
             newPhoto.name = "newPhoto";
             newPhoto.transform.SetParent(photoContent.transform);            
         }
-        Debug.Log("PhotoView generated!");
     }
 }

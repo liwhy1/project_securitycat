@@ -1,21 +1,25 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class AppManager : MonoBehaviour
 {
-    [Header("App Data")]
+    [Header("Local App Data")]
     private Vector2 originalRectSize;
     private Vector3 originalRectPosition;
+    public GameObject appContent;
+    public bool isPointerDown;
+    public bool isPointerHovered;
+
+    [Header("External App Data")]
     public GameObject appIcon;
     public GameObject appLabel;
     public GameObject appTitle;
-    public GameObject appContent;
+    public GameObject appElements;
 
     [Header("Reference Data")]
     [SerializeField] private GameManager gameManager;
-    public bool isPointerDown;
-    public bool isPointerHovered;
 
     private void Awake()
     {
@@ -143,7 +147,7 @@ public class AppManager : MonoBehaviour
         iconObject.GetComponent<RectTransform>().localPosition = targetObject.localPosition;
     }
     
-    private IEnumerator TransitionAnimationHandler(string animationType)
+    public IEnumerator TransitionAnimationHandler(string animationType)
     {
         appContent.transform.SetParent(gameManager.canvasObject);
         gameManager.persistentObject.transform.SetAsLastSibling();
@@ -178,6 +182,19 @@ public class AppManager : MonoBehaviour
             appContent.transform.SetParent(gameObject.transform);
             appContent.SetActive(false);
             gameManager.activeApp = null;
+        }
+    }
+
+    public void BackNavigationHandler()
+    {
+        // handle back navigation for Messages
+        if (appTitle.GetComponent<TMP_Text>().text == "Messages")
+        {
+            appElements.GetComponent<MessagesManager>().BackNavigationHandler();
+        }
+        else
+        {
+            StartCoroutine(TransitionAnimationHandler("out"));
         }
     }
 }
