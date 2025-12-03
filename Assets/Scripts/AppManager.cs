@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -65,7 +66,7 @@ public class AppManager : MonoBehaviour
             // long press limit reached, follow mouse
             if (time > .55f)
             {
-                // make sure app appears over other apps
+                // make sure app appears over other apps, but below persistentui
                 gameObject.transform.SetSiblingIndex(gameManager.persistentObject.transform.GetSiblingIndex() - 1);
                 // follow mouse position and highlight
                 gameObject.GetComponent<RectTransform>().position = new Vector3(gameManager.pointerAction.ReadValue<Vector2>().x, gameManager.pointerAction.ReadValue<Vector2>().y, 0f);
@@ -74,7 +75,7 @@ public class AppManager : MonoBehaviour
             if (isPointerHovered) time += Time.deltaTime;
             yield return null;
         }
-        // pointerup triggered earlier than long press limit reach or called from navbar
+        // pointerup triggered earlier than long press limit reached or called from navbar
         if ((time < .55f && isPointerHovered) || isExternal)
         {
             // Handle transition
@@ -97,13 +98,13 @@ public class AppManager : MonoBehaviour
 
     private void AppPlacementHandler()
     {
-        RectTransform closestGrid = gameManager.appList[0][1].GetComponent<RectTransform>();
+        RectTransform closestGrid = gameManager.appArrayList[0].arrayObject.GetComponent<RectTransform>();
         float closestDistance = 99999;
-        foreach (var app in gameManager.appList)
+        foreach (var app in gameManager.appArrayList)
         {
-            GameObject currentGrid = app[1];
+            GameObject currentGrid = app.arrayObject;
             // check if current grid has values, if it does, only allow placing if it is occupied by the same grid position to allow placing in the same spot
-            if (currentGrid == null || (app[0] != null && app[0] != gameObject)) continue;
+            if (currentGrid == null || (app.appObject != null && app.appObject != gameObject)) continue;
             float currentDistance = Vector3.Distance(currentGrid.GetComponent<RectTransform>().localPosition, gameObject.GetComponent<RectTransform>().localPosition);
             if (currentDistance <= closestDistance)
             {
@@ -112,22 +113,16 @@ public class AppManager : MonoBehaviour
             }
         }
 
-        // redundant if position stays the same
-        foreach (var app in gameManager.appList)
-        {
-            // unassign app from old grid
-            if (app[0] == gameObject)
-            {
-                app[1].GetComponent<Image>().color = Color.white;
-                app[0] = null;
-            }
-            // assign app to grid
-            if (app[1] == closestGrid.gameObject)
-            {
-                app[0] = gameObject;
-                app[1].GetComponent<Image>().color = Color.red;
-            }
-        }
+        // unassign app from old grid
+        var appArrayOld = gameManager.appArrayList.FirstOrDefault(x => x.appObject == gameObject);
+        appArrayOld.arrayObject.GetComponent<Image>().color = Color.white;
+        appArrayOld.appObject = null;
+
+        // assign app to grid
+        var appArrayNew = gameManager.appArrayList.FirstOrDefault(x => x.arrayObject == closestGrid.gameObject);
+        appArrayNew.arrayObject.GetComponent<Image>().color = Color.red;
+        appArrayNew.appObject = gameObject;
+
         // animate app position to new grid
         StartCoroutine(AppIconAnimationHandler(gameObject, closestGrid));
     }
@@ -150,6 +145,7 @@ public class AppManager : MonoBehaviour
     public IEnumerator TransitionAnimationHandler(string animationType)
     {
         appContent.transform.SetParent(gameManager.canvasObject);
+        // make sure persistant stays on top
         gameManager.persistentObject.transform.SetAsLastSibling();
 
         appContent.SetActive(true);
@@ -191,6 +187,10 @@ public class AppManager : MonoBehaviour
         if (appTitle.GetComponent<TMP_Text>().text == "Messages")
         {
             appElements.GetComponent<MessagesManager>().BackNavigationHandler();
+        }
+        else if (appTitle.GetComponent<TMP_Text>().text == "Bubbl")
+        {
+            appElements.GetComponent<BubblManager>().BackNavigationHandler();
         }
         else
         {

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
 using System;
+using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
@@ -19,18 +20,18 @@ public class GameManager : MonoBehaviour
     public Transform persistentObject;
 
     [Header("Manager Data")]
-    public string gameState;
     public float animationSpeed;
     public GameObject activeApp;
     [SerializeField] private GameObject gridInstance;
     [SerializeField] private GameObject gridHolder;
-    public List<GameObject[]> appList = new List<GameObject[]>();
-    [SerializeField] TMP_Text statusBarTime;
     [SerializeField] private GameObject appInstance;
-    public List<NewAppTemplate> appData;
+    [SerializeField] TMP_Text statusBarTime;
+    public List<AppListTemplate> appArrayList = new List<AppListTemplate>();
+    public List<NewAppTemplate> appDataList;
 
     private void OnEnable() => inputManager.Enable();
     private void OnDisable() => inputManager.Disable();
+    private void ResetHandler(InputAction.CallbackContext context) => SceneManager.LoadScene("MAIN");
 
     private void Awake()
     {
@@ -41,7 +42,6 @@ public class GameManager : MonoBehaviour
         pointerAction = inputManager.Player.PointerPosition;   
         
         // setup vars
-        gameState = "home";
         animationSpeed = .25f;
         appInstance.SetActive(false);
         gridInstance.SetActive(false);
@@ -63,45 +63,36 @@ public class GameManager : MonoBehaviour
 
     public void AppInitializationHandler()
     {
-        // initialize new apps
-        foreach (var app in appData)
+        foreach (var appData in appDataList)
         {
-            // apply variables to appmanager
+            // instantiate new app & appmanager
             GameObject newApp = Instantiate(appInstance, new Vector3(0, 0, 0), Quaternion.identity);
             var currentManager = newApp.GetComponent<AppManager>();
-            currentManager.appTitle.GetComponent<TMP_Text>().text = app.appName;
-            currentManager.appLabel.GetComponent<TMP_Text>().text = app.appName;
-            currentManager.appIcon.GetComponent<Image>().sprite = app.appIcon;
-            GameObject newElements = Instantiate(app.appElements, new Vector3(0, 0, 0), Quaternion.identity);
+            currentManager.appTitle.GetComponent<TMP_Text>().text = appData.appName;
+            currentManager.appLabel.GetComponent<TMP_Text>().text = appData.appName;
+            currentManager.appIcon.GetComponent<Image>().sprite = appData.appIcon;
+            
+            // instantiate app content
+            GameObject newElements = Instantiate(appData.appElements, new Vector3(0, 0, 0), Quaternion.identity);
             newElements.name = "Elements";
-            app.appElements.SetActive(false);
+            appData.appElements.SetActive(false);
             newElements.SetActive(true);
             newElements.transform.SetParent(currentManager.appContent.transform);
             newElements.transform.SetSiblingIndex(0);
             currentManager.appElements = newElements;
+            
             newApp.SetActive(true);
-            newApp.name = app.appName;
+            newApp.name = appData.appName;
             newApp.transform.SetParent(canvasObject);
 
-            // place new apps on the grid
-            for (int i = 0; i < appList.Count; i++)
-            {
-                if (appList[i][0] == null)
-                {
-                    appList[i][0] = newApp;
-                    appList[i][1].GetComponent<Image>().color = Color.red;
-                    newApp.GetComponent<RectTransform>().position = appList[i][1].GetComponent<RectTransform>().position;
-                    Debug.Log("App initialized: " + newApp.transform.Find("Label").GetComponent<TMP_Text>().text + " at: " + appList[i][1].name);
-                    break;
-                }
-            }
+            // place new apps on the next empty grid
+            var appArray = appArrayList.FirstOrDefault(x => x.appObject == null);
+            appArray.appObject = newApp;
+            appArray.arrayObject.GetComponent<Image>().color = Color.red;
+            newApp.GetComponent<RectTransform>().position = appArray.arrayObject.GetComponent<RectTransform>().position;
+            Debug.Log("App initialized: " + newApp.transform.Find("Label").GetComponent<TMP_Text>().text + " at: " + appArray.arrayObject.name);
         }
         persistentObject.transform.SetAsLastSibling();
-    }
-
-    private void ResetHandler(InputAction.CallbackContext context)
-    {
-        SceneManager.LoadScene("MAIN");
     }
 
     private void HomeGridHandler()
@@ -114,7 +105,7 @@ public class GameManager : MonoBehaviour
                 GameObject newGrid = Instantiate(gridInstance, new Vector3(gridInstance.transform.position.x + 230 * j, gridInstance.transform.position.y - 220 * i, gridInstance.transform.position.z), Quaternion.identity);
                 newGrid.name = "Grid" + j + i;
                 newGrid.transform.SetParent(gridHolder.transform);
-                appList.Add(new GameObject[] {null, newGrid});
+                appArrayList.Add(new AppListTemplate {appObject = null, arrayObject = newGrid});
                 newGrid.SetActive(false);
             }
         }
@@ -129,6 +120,7 @@ public class GameManager : MonoBehaviour
         {
             if (navigatorObject.name.Contains("Back"))
             {
+                // call app specific back navigation
                 activeApp.GetComponent<AppManager>().BackNavigationHandler();
             }
             else if (navigatorObject.name.Contains("Home"))
@@ -136,7 +128,6 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(activeApp.GetComponent<AppManager>().TransitionAnimationHandler("out"));
             }
         }
-
 
         // handle button color
         Color newColor = navigatorObject.GetComponent<Image>().color;
@@ -151,4 +142,11 @@ public class NewAppTemplate
     public string appName;
     public Sprite appIcon;
     public GameObject appElements;
+}
+
+[Serializable]
+public class AppListTemplate
+{
+    public GameObject appObject;
+    public GameObject arrayObject;
 }
