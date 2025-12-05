@@ -19,15 +19,14 @@ public class GameManager : MonoBehaviour
     public Transform canvasObject;
     public Transform persistentObject;
 
-    [Header("Manager Data")]
+    [Header("Local Data")]
     public float animationSpeed;
     public GameObject activeApp;
     [SerializeField] private GameObject gridInstance;
     [SerializeField] private GameObject gridHolder;
-    [SerializeField] private GameObject appInstance;
     [SerializeField] TMP_Text statusBarTime;
     public List<AppListTemplate> appArrayList = new List<AppListTemplate>();
-    public List<NewAppTemplate> appDataList;
+    public List<GameObject> appList;
 
     private void OnEnable() => inputManager.Enable();
     private void OnDisable() => inputManager.Disable();
@@ -43,7 +42,6 @@ public class GameManager : MonoBehaviour
         
         // setup vars
         animationSpeed = .25f;
-        appInstance.SetActive(false);
         gridInstance.SetActive(false);
 
         HomeGridHandler();
@@ -63,34 +61,14 @@ public class GameManager : MonoBehaviour
 
     public void AppInitializationHandler()
     {
-        foreach (var appData in appDataList)
+        foreach (var app in appList)
         {
-            // instantiate new app & appmanager
-            GameObject newApp = Instantiate(appInstance, new Vector3(0, 0, 0), Quaternion.identity);
-            var currentManager = newApp.GetComponent<AppManager>();
-            currentManager.appTitle.GetComponent<TMP_Text>().text = appData.appName;
-            currentManager.appLabel.GetComponent<TMP_Text>().text = appData.appName;
-            currentManager.appIcon.GetComponent<Image>().sprite = appData.appIcon;
-            
-            // instantiate app content
-            GameObject newElements = Instantiate(appData.appElements, new Vector3(0, 0, 0), Quaternion.identity);
-            newElements.name = "Elements";
-            appData.appElements.SetActive(false);
-            newElements.SetActive(true);
-            newElements.transform.SetParent(currentManager.appContent.transform);
-            newElements.transform.SetSiblingIndex(0);
-            currentManager.appElements = newElements;
-            
-            newApp.SetActive(true);
-            newApp.name = appData.appName;
-            newApp.transform.SetParent(canvasObject);
-
-            // place new apps on the next empty grid
+            // place new app on the next empty grid
             var appArray = appArrayList.FirstOrDefault(x => x.appObject == null);
-            appArray.appObject = newApp;
+            appArray.appObject = app;
             appArray.arrayObject.GetComponent<Image>().color = Color.red;
-            newApp.GetComponent<RectTransform>().position = appArray.arrayObject.GetComponent<RectTransform>().position;
-            Debug.Log("App initialized: " + newApp.transform.Find("Label").GetComponent<TMP_Text>().text + " at: " + appArray.arrayObject.name);
+            app.GetComponent<RectTransform>().position = appArray.arrayObject.GetComponent<RectTransform>().position;
+            Debug.Log("App initialized: " + app.transform.Find("Label").GetComponent<TMP_Text>().text + " at: " + appArray.arrayObject.name);
         }
         persistentObject.transform.SetAsLastSibling();
     }
@@ -103,7 +81,7 @@ public class GameManager : MonoBehaviour
             for (int j = 0; j < 4; j++)
             {
                 GameObject newGrid = Instantiate(gridInstance, new Vector3(gridInstance.transform.position.x + 230 * j, gridInstance.transform.position.y - 220 * i, gridInstance.transform.position.z), Quaternion.identity);
-                newGrid.name = "Grid" + j + i;
+                newGrid.name = "Grid" + i + j;
                 newGrid.transform.SetParent(gridHolder.transform);
                 appArrayList.Add(new AppListTemplate {appObject = null, arrayObject = newGrid});
                 newGrid.SetActive(false);
@@ -134,14 +112,6 @@ public class GameManager : MonoBehaviour
         newColor.a = newColor.a == 0 ? .5f : 0; 
         navigatorObject.GetComponent<Image>().color = newColor;
     }
-}
-
-[Serializable]
-public class NewAppTemplate
-{
-    public string appName;
-    public Sprite appIcon;
-    public GameObject appElements;
 }
 
 [Serializable]

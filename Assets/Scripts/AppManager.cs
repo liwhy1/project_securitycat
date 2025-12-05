@@ -7,17 +7,12 @@ using UnityEngine.UI;
 public class AppManager : MonoBehaviour
 {
     [Header("Local App Data")]
-    private Vector2 originalRectSize;
-    private Vector3 originalRectPosition;
-    public GameObject appContent;
+    [SerializeField] private GameObject appIcon;
+    public GameObject appTitle;
+    [SerializeField] private GameObject appElements;
+    [SerializeField] private GameObject appMask;
     public bool isPointerDown;
     public bool isPointerHovered;
-
-    [Header("External App Data")]
-    public GameObject appIcon;
-    public GameObject appLabel;
-    public GameObject appTitle;
-    public GameObject appElements;
 
     [Header("Reference Data")]
     [SerializeField] private GameManager gameManager;
@@ -25,9 +20,11 @@ public class AppManager : MonoBehaviour
     private void Awake()
     {
         // setup vars
-        appContent.SetActive(false);
-        appContent.GetComponent<Mask>().enabled = true;
-        originalRectSize = appContent.GetComponent<RectTransform>().sizeDelta;
+        appMask.SetActive(false);
+        appMask.GetComponent<Mask>().enabled = true;
+        appElements.SetActive(true);
+        appElements.transform.SetParent(appMask.transform);
+        appElements.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
     }
 
     public void PointerCancelHandler(string cancelReason) 
@@ -54,11 +51,11 @@ public class AppManager : MonoBehaviour
         else if (beginReason == "pointerdown")
         {
             isPointerDown = true;
-            StartCoroutine(ButtonInteractionHandler(false));            
+            StartCoroutine(AppInteractionHandler(false));            
         }
     }
 
-    public IEnumerator ButtonInteractionHandler(bool isExternal)
+    public IEnumerator AppInteractionHandler(bool isExternal)
     {
         float time = 0f;
         while (isPointerDown)
@@ -85,9 +82,8 @@ public class AppManager : MonoBehaviour
             }
             else if (gameManager.activeApp == null)
             {
-                appContent.transform.SetParent(gameManager.canvasObject);
-                originalRectPosition = appContent.GetComponent<RectTransform>().localPosition;
-                appContent.transform.SetParent(gameObject.transform);
+                appMask.transform.SetParent(gameManager.canvasObject);
+                appMask.transform.SetParent(gameObject.transform);
                 StartCoroutine(TransitionAnimationHandler("in"));
             }
             yield break;
@@ -144,39 +140,43 @@ public class AppManager : MonoBehaviour
     
     public IEnumerator TransitionAnimationHandler(string animationType)
     {
-        appContent.transform.SetParent(gameManager.canvasObject);
-        // make sure persistant stays on top
+        // move mask outside of app
+        appMask.SetActive(true);
+        appMask.name = gameObject.name + "Content";
+        appMask.transform.SetParent(gameManager.canvasObject);
+
+        // make sure persistent stays on top
         gameManager.persistentObject.transform.SetAsLastSibling();
 
-        appContent.SetActive(true);
-        if (animationType == "in")
-        {
-            appContent.GetComponent<RectTransform>().sizeDelta = new Vector2(100f, 100f);
-            appContent.GetComponent<RectTransform>().localPosition = transform.localPosition;
-            gameManager.activeApp = gameObject;
-        }
+        // reset mask to expected values
+        Vector2 currentRectSize = animationType == "in" ? new Vector2(100f, 100f) : new Vector2(1080f, 1920f);
+        Vector3 currentRectPosition = animationType == "in" ? transform.localPosition : new Vector3(0,0,0);
+        appMask.GetComponent<RectTransform>().sizeDelta = currentRectSize;
+        appMask.GetComponent<RectTransform>().localPosition = currentRectPosition;
 
-        Vector2 currentRectSize = appContent.GetComponent<RectTransform>().sizeDelta;
-        Vector3 currentRectPosition = appContent.GetComponent<RectTransform>().localPosition;
         // set target values based on animation type
-        Vector2 targetSize = animationType == "in" ? new Vector2(1080f, 1920f) : originalRectSize;
-        Vector3 targetPosition = animationType == "in" ? new Vector3(0,0,0) : originalRectPosition;
+        Vector2 targetSize = animationType == "in" ? new Vector2(1080f, 1920f) : new Vector2(100f, 100f);
+        Vector3 targetPosition = animationType == "in" ? new Vector3(0,0,0) : transform.localPosition;
+        gameManager.activeApp = animationType == "in" ? gameObject : null;
 
         // animate transition: app icon -> fullscreen app
         float time = 0f;
         while (time < gameManager.animationSpeed)
         {
             time += Time.deltaTime;
-            appContent.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(currentRectSize, targetSize, time / gameManager.animationSpeed);
-            appContent.GetComponent<RectTransform>().localPosition = Vector3.Lerp(currentRectPosition, targetPosition, time / gameManager.animationSpeed);
+            appMask.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(currentRectSize, targetSize, time / gameManager.animationSpeed);
+            appMask.GetComponent<RectTransform>().localPosition = Vector3.Lerp(currentRectPosition, targetPosition, time / gameManager.animationSpeed);
             yield return null;
         }
-        appContent.GetComponent<RectTransform>().sizeDelta = targetSize;
-        appContent.GetComponent<RectTransform>().localPosition = targetPosition;
+
+        // reset vars
+        appMask.GetComponent<RectTransform>().sizeDelta = targetSize;
+        appMask.GetComponent<RectTransform>().localPosition = targetPosition;
         if (animationType == "out")
         {
-            appContent.transform.SetParent(gameObject.transform);
-            appContent.SetActive(false);
+            appMask.SetActive(false);
+            appMask.name = "Mask";
+            appMask.transform.SetParent(gameObject.transform);
             gameManager.activeApp = null;
         }
     }

@@ -10,40 +10,52 @@ public class MessagesManager : MonoBehaviour
 {
     [Header("Reference Data")]
     [SerializeField] private GameManager gameManager;
+    [SerializeField] private AppManager appManager;
     [SerializeField] private GameObject chatInstance;
     [SerializeField] private GameObject chatContent;
     [SerializeField] private GameObject messageInstance;
     [SerializeField] private GameObject messageContent;
 
     [Header("Local Data")]
-    private GameObject messageAssessmentScreen;
-    [SerializeField] private GameObject viewHolder;
     [SerializeField] private string currentState;
     [SerializeField] private string lastState;
+    private int lastPageHits;
+    [SerializeField] private GameObject currentTargetChat;
+    [SerializeField] private GameObject viewHolder;
+    [SerializeField] private GameObject messageView;
     [SerializeField] private Button messagesButton;
     [SerializeField] private Button contactsButton;
     [SerializeField] private Button profileButton;
+    [SerializeField] private Button messageBackButton;
+    [SerializeField] private GameObject messageAssessmentScreen;
+    [SerializeField] private Button messageAssessButton;
+    [SerializeField] private Button messageAssessConfirmButton;
+    [SerializeField] private Button messageAssessReturnButton;
     [SerializeField] private List<ChatContentTemplate> activeChats = new List<ChatContentTemplate>(); // chat:content
 
     private void Awake()
     {
+        // setup vars
         currentState = "chatlist";
         messageContent.SetActive(false);
-        
-        // start of tech depth
-        messageAssessmentScreen = viewHolder.transform.Find("MessageView").transform.Find("AssessmentScreen").gameObject;
-        messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -1800f, 0f);
-        messageAssessmentScreen.SetActive(true);
-        viewHolder.transform.Find("MessageView").transform.Find("Back").GetComponent<Button>().onClick.AddListener(delegate { StartCoroutine(ChatTransitionHandler(null)); });
-        viewHolder.transform.Find("MessageView").transform.Find("AssessButton").GetComponent<Button>().onClick.AddListener(delegate { messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -96f, 0f); });
-        messageAssessmentScreen.transform.Find("ConfirmButton").GetComponent<Button>().onClick.AddListener(delegate { AssessmentHandler(); });
-        messageAssessmentScreen.transform.Find("ReturnButton").GetComponent<Button>().onClick.AddListener(delegate { messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -1800f, 0f); });
-        // end of tech depth
+        messageAssessmentScreen.SetActive(false);
+        messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -96f, 0f);
+        messageView.SetActive(false);
+        messageView.GetComponent<RectTransform>().transform.localPosition = new Vector3(1166f, 26.909f, 0f);
+        viewHolder.transform.Find("ChatView").GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 27f, 0f);
+        viewHolder.transform.Find("ContactsView").GetComponent<RectTransform>().transform.localPosition = new Vector3(1166f, 39.6f, 0f);
+        viewHolder.transform.Find("ProfileView").GetComponent<RectTransform>().transform.localPosition = new Vector3(2330f, 39.6f, 0f);
 
-        messagesButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("chatlist"));} );
-        contactsButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("contacts"));} );
-        profileButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("profile"));} );
+        // setup button
+        messageBackButton.onClick.AddListener(delegate { StartCoroutine(PageTransitionHandler("chatlist")); lastPageHits = 0; } );
+        messageAssessButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(true); });
+        messageAssessConfirmButton.onClick.AddListener(delegate { AssessmentHandler(); });
+        messageAssessReturnButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(false); });
+        messagesButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("chatlist")); lastPageHits = 0; } );
+        contactsButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("contacts")); lastPageHits = 0; } );
+        profileButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("profile")); lastPageHits = 0; } );
 
+        // generate chatview
         ChatViewHandler();
     }
 
@@ -57,12 +69,13 @@ public class MessagesManager : MonoBehaviour
             newChat.transform.Find("Sender").GetComponent<TMP_Text>().text = "Sender #" + i;
             newChat.transform.Find("Message").GetComponent<TMP_Text>().text = "New message";
             newChat.transform.SetParent(chatContent.transform);
+
             // generate openable chats
             if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < 3) 
             {
                 noticeCount++;
                 newChat.transform.Find("Notice").gameObject.SetActive(true);
-                newChat.GetComponent<Button>().onClick.AddListener(delegate { StartCoroutine(ChatTransitionHandler(newChat)); });
+                newChat.GetComponent<Button>().onClick.AddListener(delegate { ChatInteractionHandler(newChat); lastPageHits = 0; } );
                 MessageViewHandler(newChat);
             }
             else 
@@ -71,6 +84,12 @@ public class MessagesManager : MonoBehaviour
                 newChat.GetComponent<Button>().interactable = false;
             }
         }
+    }
+
+    private void ChatInteractionHandler(GameObject newChat)
+    {
+        currentTargetChat = newChat;
+        StartCoroutine(PageTransitionHandler("chatmessage"));
     }
 
     private void MessageViewHandler(GameObject chatObject)
@@ -92,71 +111,16 @@ public class MessagesManager : MonoBehaviour
 
     public void AssessmentHandler()
     {
-        messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -1800f, 0f);
-        viewHolder.transform.Find("MessageView").transform.Find("AssessButton").gameObject.SetActive(false);
+        messageAssessButton.gameObject.SetActive(false);
         
-        // disable current chat TODO: this is temp?
-        var activeChat = activeChats.FirstOrDefault(x => x.contentObject = viewHolder.transform.Find("MessageView").GetComponent<ScrollRect>().content.gameObject);
+        // disable current chat TODO: is this temp?
+        var activeChat = activeChats.FirstOrDefault(x => x.contentObject = messageView.GetComponent<ScrollRect>().content.gameObject);
         activeChat.chatObject.transform.Find("Notice").gameObject.SetActive(false);
         activeChat.chatObject.GetComponent<Image>().color = new Color32(177,177,177,255); 
         activeChat.chatObject.GetComponent<Button>().interactable = false;  
         
         // return to chat page
-        StartCoroutine(ChatTransitionHandler(null));
-    }
-
-    // TODO: Merge with page transition handler :)
-    private IEnumerator ChatTransitionHandler(GameObject chatObject)
-    {
-        float time = 0f;
-        Vector3 originalPosition = viewHolder.GetComponent<RectTransform>().transform.localPosition;
-        float targetPositionX = currentState == "chatlist" ? -1165f : 0f;
-        lastState = currentState;
-        currentState = currentState == "chatlist" ? "chatmessage" : "chatlist";
-        messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -1800f, 0f);
-        
-        // disable in app navbar before transitioning to message page
-        if (currentState == "chatmessage")
-        {
-            messagesButton.gameObject.SetActive(false);
-            contactsButton.gameObject.SetActive(false);
-            profileButton.gameObject.SetActive(false);
-        }
-
-        // disable all content pages, before animating in
-        if (chatObject != null) activeChats.ForEach(x => x.contentObject.SetActive(false));
-
-        // enable target content page, if exists
-        if (chatObject != null)
-        {
-            var targetChat = activeChats.FirstOrDefault(x => x.chatObject == chatObject);
-            viewHolder.transform.Find("MessageView").GetComponent<ScrollRect>().content = targetChat.contentObject.GetComponent<RectTransform>();
-            targetChat.contentObject.SetActive(true);
-            // set chat title
-            viewHolder.transform.Find("MessageView").transform.Find("Sender").GetComponent<TMP_Text>().text = chatObject.transform.Find("Sender").GetComponent<TMP_Text>().text;
-            // make sure assess button is active
-            viewHolder.transform.Find("MessageView").transform.Find("AssessButton").gameObject.SetActive(true);
-        }
-
-        // animate chat page
-        while (time < gameManager.animationSpeed)
-        {
-            time += Time.deltaTime;
-            viewHolder.GetComponent<RectTransform>().transform.localPosition = Vector3.Lerp(originalPosition, new Vector3(targetPositionX, originalPosition.y, originalPosition.z), time / gameManager.animationSpeed);
-            yield return null;
-        }
-        viewHolder.GetComponent<RectTransform>().transform.localPosition = new Vector3(targetPositionX, originalPosition.y, originalPosition.z);
-        
-        // disable content pages, after animating out
-        if (chatObject == null) activeChats.ForEach(x => x.contentObject.SetActive(false));
-        
-        // enable in app navbar after transitioning to chat page
-        if (currentState == "chatlist")
-        {
-            messagesButton.gameObject.SetActive(true);
-            contactsButton.gameObject.SetActive(true);
-            profileButton.gameObject.SetActive(true);
-        }
+        StartCoroutine(PageTransitionHandler("chatlist"));
     }
 
     private IEnumerator PageTransitionHandler(string targetPage)
@@ -165,11 +129,32 @@ public class MessagesManager : MonoBehaviour
         if (currentState == targetPage) yield break;
 
         float time = 0f;
+        Vector3 originalPosition = viewHolder.GetComponent<RectTransform>().transform.localPosition;
         lastState = currentState;
         currentState = targetPage;
-        float targetPositionX = currentState == "chatlist" ? 0f : currentState == "contacts" ? -2330f : -3518f;
-        Vector3 originalPosition = viewHolder.GetComponent<RectTransform>().transform.localPosition;
+        float targetPositionX = targetPage == "chatlist" ? 0f : currentState == "contacts" || currentState == "chatmessage" ? -1166f : -2330f;
         
+        if (targetPage == "chatmessage")
+        {
+            // handle gameobjects before transition
+            messageAssessmentScreen.SetActive(false);
+            messagesButton.gameObject.SetActive(false);
+            contactsButton.gameObject.SetActive(false);
+            profileButton.gameObject.SetActive(false);
+            messageView.SetActive(true);
+            viewHolder.transform.Find("ContactsView").gameObject.SetActive(false);
+            appManager.appTitle.SetActive(false);
+            messageAssessButton.gameObject.SetActive(true);
+
+            // handle target page before transition
+            if (currentTargetChat == null) { Debug.Log("Well shit."); yield return null;}
+            activeChats.ForEach(x => x.contentObject.SetActive(false));
+            var targetChat = activeChats.FirstOrDefault(x => x.chatObject == currentTargetChat);
+            messageView.GetComponent<ScrollRect>().content = targetChat.contentObject.GetComponent<RectTransform>();
+            targetChat.contentObject.SetActive(true);
+            messageView.transform.Find("Sender").GetComponent<TMP_Text>().text = currentTargetChat.transform.Find("Sender").GetComponent<TMP_Text>().text;
+        }
+
         // animate chat page
         while (time < gameManager.animationSpeed)
         {
@@ -178,28 +163,34 @@ public class MessagesManager : MonoBehaviour
             yield return null;
         }
         viewHolder.GetComponent<RectTransform>().transform.localPosition = new Vector3(targetPositionX, originalPosition.y, originalPosition.z);
+        
+        // handle gameobjects after transition
+        if (targetPage == "chatlist")
+        {
+            messagesButton.gameObject.SetActive(true);
+            contactsButton.gameObject.SetActive(true);
+            profileButton.gameObject.SetActive(true);
+            appManager.appTitle.SetActive(true);
+            messageView.SetActive(false);
+            viewHolder.transform.Find("ContactsView").gameObject.SetActive(true);
+            currentTargetChat = null;
+        }
     }
 
     public void BackNavigationHandler()
     {
-        switch (currentState)
-        {
-            case "chatmessage":
-            StartCoroutine(ChatTransitionHandler(null));
-            break;
-            case "contacts":
-            StartCoroutine(PageTransitionHandler(lastState));
-            break;
-            case "profile":
-            StartCoroutine(PageTransitionHandler(lastState));
-            break;
-            case "chatlist":
-            StartCoroutine(gameManager.activeApp.GetComponent<AppManager>().ButtonInteractionHandler(true));
-            break;
-            // TODO: handle the rest of the in app pages
+        // bail if we are on chatlist or lastpagehit is reached
+        if (lastPageHits > 2 || currentState == "chatlist") 
+        { 
+            lastPageHits = 0; 
+            StartCoroutine(appManager.AppInteractionHandler(true)); 
+            return;
         }
+        
+        // transition to last page
+        lastPageHits++;
+        StartCoroutine(PageTransitionHandler(lastState));
     }
-
 }
 
 [Serializable]
