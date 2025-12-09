@@ -20,11 +20,10 @@ public class AppManager : MonoBehaviour
     private void Awake()
     {
         // setup vars
-        appMask.SetActive(false);
-        appMask.GetComponent<Mask>().enabled = true;
-        appElements.SetActive(true);
-        appElements.transform.SetParent(appMask.transform);
+        appElements.SetActive(false);
+        appElements.GetComponent<RectTransform>().localScale = new Vector3(0,0,1);
         appElements.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
+        appMask.GetComponent<Mask>().enabled = true;
     }
 
     public void PointerCancelHandler(string cancelReason) 
@@ -82,8 +81,8 @@ public class AppManager : MonoBehaviour
             }
             else if (gameManager.activeApp == null)
             {
-                appMask.transform.SetParent(gameManager.canvasObject);
-                appMask.transform.SetParent(gameObject.transform);
+                appElements.transform.SetParent(gameManager.canvasObject);
+                appElements.transform.SetParent(gameObject.transform);
                 StartCoroutine(TransitionAnimationHandler("in"));
             }
             yield break;
@@ -141,21 +140,21 @@ public class AppManager : MonoBehaviour
     public IEnumerator TransitionAnimationHandler(string animationType)
     {
         // move mask outside of app
-        appMask.SetActive(true);
-        appMask.name = gameObject.name + "Content";
-        appMask.transform.SetParent(gameManager.canvasObject);
+        appElements.SetActive(true);
+        appElements.name = gameObject.name + "Content";
+        appElements.transform.SetParent(gameManager.canvasObject);
 
         // make sure persistent stays on top
         gameManager.persistentObject.transform.SetAsLastSibling();
 
         // reset mask to expected values
-        Vector2 currentRectSize = animationType == "in" ? new Vector2(100f, 100f) : new Vector2(1080f, 1920f);
+        Vector2 currentRectSize = animationType == "in" ? new Vector2(0, 0) : new Vector2(1, 1);
         Vector3 currentRectPosition = animationType == "in" ? transform.localPosition : new Vector3(0,0,0);
-        appMask.GetComponent<RectTransform>().sizeDelta = currentRectSize;
-        appMask.GetComponent<RectTransform>().localPosition = currentRectPosition;
+        appElements.GetComponent<RectTransform>().localScale = currentRectSize;
+        appElements.GetComponent<RectTransform>().localPosition = currentRectPosition;
 
         // set target values based on animation type
-        Vector2 targetSize = animationType == "in" ? new Vector2(1080f, 1920f) : new Vector2(100f, 100f);
+        Vector2 targetSize = animationType == "in" ? new Vector2(1, 1) : new Vector2(0, 0);
         Vector3 targetPosition = animationType == "in" ? new Vector3(0,0,0) : transform.localPosition;
         gameManager.activeApp = animationType == "in" ? gameObject : null;
 
@@ -164,19 +163,19 @@ public class AppManager : MonoBehaviour
         while (time < gameManager.animationSpeed)
         {
             time += Time.deltaTime;
-            appMask.GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(currentRectSize, targetSize, time / gameManager.animationSpeed);
-            appMask.GetComponent<RectTransform>().localPosition = Vector3.Lerp(currentRectPosition, targetPosition, time / gameManager.animationSpeed);
+            appElements.GetComponent<RectTransform>().localScale = Vector2.Lerp(currentRectSize, targetSize, time / gameManager.animationSpeed);
+            appElements.GetComponent<RectTransform>().localPosition = Vector3.Lerp(currentRectPosition, targetPosition, time / gameManager.animationSpeed);
             yield return null;
         }
 
         // reset vars
-        appMask.GetComponent<RectTransform>().sizeDelta = targetSize;
-        appMask.GetComponent<RectTransform>().localPosition = targetPosition;
+        appElements.GetComponent<RectTransform>().localScale = targetSize;
+        appElements.GetComponent<RectTransform>().localPosition = targetPosition;
         if (animationType == "out")
         {
-            appMask.SetActive(false);
-            appMask.name = "Mask";
-            appMask.transform.SetParent(gameObject.transform);
+            appElements.SetActive(false);
+            appElements.name = "Elements";
+            appElements.transform.SetParent(gameObject.transform);
             gameManager.activeApp = null;
         }
     }

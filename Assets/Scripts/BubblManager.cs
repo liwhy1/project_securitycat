@@ -55,6 +55,7 @@ public class BubblManager : MonoBehaviour
             GameObject newPost = Instantiate(postInstance, postInstance.transform.position, Quaternion.identity);
             newPost.name = "newPost";
             newPost.transform.SetParent(postContent.transform);
+            newPost.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
             newPost.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = "User #" + i;
             int r = UnityEngine.Random.Range(1,5);
             newPost.transform.Find("Info").gameObject.GetComponent<TMP_Text>().text = "Posted: " + r + (r > 1 ? " days ago." : " day ago.");
@@ -81,6 +82,7 @@ public class BubblManager : MonoBehaviour
         newContent.name = "Content";
         newContent.SetActive(false);
         newContent.transform.SetParent(commentContent.transform.parent);
+        newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         activePosts.Add(new PostContentTemplate {postObject = postObject, contentObject = newContent});
         for (int i = 0; i < 10; i++)
         {
@@ -89,6 +91,7 @@ public class BubblManager : MonoBehaviour
             newMessage.transform.Find("Sender").GetComponent<TMP_Text>().text = postObject.transform.Find("User").GetComponent<TMP_Text>().text;
             newMessage.transform.Find("Message").GetComponent<TMP_Text>().text = "New message";
             newMessage.transform.SetParent(newContent.transform);
+            newMessage.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         }
     }
 

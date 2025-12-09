@@ -10,6 +10,7 @@ using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
+    public TextAsset myTextFile;
     [Header("Input Manager")]
     private InputManager inputManager;
     private InputAction resetAction;
@@ -47,6 +48,9 @@ public class GameManager : MonoBehaviour
         HomeGridHandler();
         StartCoroutine(StatusBarUpdateHandler());
         AppInitializationHandler();
+
+        string fileContent = myTextFile.text;
+        //Debug.Log(fileContent);
     }
 
     private IEnumerator StatusBarUpdateHandler()

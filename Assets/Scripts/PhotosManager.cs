@@ -20,7 +20,8 @@ public class PhotosManager : MonoBehaviour
             int r = Random.Range(0,3);
             newPhoto.GetComponent<Image>().color = r == 0 ? Color.lightBlue : r == 1 ? Color.lightGreen : Color.lightCoral;
             newPhoto.name = "newPhoto";
-            newPhoto.transform.SetParent(photoContent.transform);            
+            newPhoto.transform.SetParent(photoContent.transform);
+            newPhoto.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         }
     }
 }

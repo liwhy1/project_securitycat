@@ -69,6 +69,7 @@ public class MessagesManager : MonoBehaviour
             newChat.transform.Find("Sender").GetComponent<TMP_Text>().text = "Sender #" + i;
             newChat.transform.Find("Message").GetComponent<TMP_Text>().text = "New message";
             newChat.transform.SetParent(chatContent.transform);
+            newChat.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
 
             // generate openable chats
             if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < 3) 
@@ -98,6 +99,7 @@ public class MessagesManager : MonoBehaviour
         newContent.name = "Content";
         newContent.SetActive(false);
         newContent.transform.SetParent(messageContent.transform.parent);
+        newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         activeChats.Add(new ChatContentTemplate {chatObject = chatObject, contentObject = newContent});
         for (int i = 0; i < 10; i++)
         {
@@ -106,6 +108,7 @@ public class MessagesManager : MonoBehaviour
             newMessage.transform.Find("Sender").GetComponent<TMP_Text>().text = chatObject.transform.Find("Sender").GetComponent<TMP_Text>().text;
             newMessage.transform.Find("Message").GetComponent<TMP_Text>().text = "New message";
             newMessage.transform.SetParent(newContent.transform);
+            newMessage.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         }
     }
 
