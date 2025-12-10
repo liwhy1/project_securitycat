@@ -10,20 +10,18 @@ public class AppManager : MonoBehaviour
     [SerializeField] private GameObject appIcon;
     public GameObject appTitle;
     [SerializeField] private GameObject appElements;
-    [SerializeField] private GameObject appMask;
     public bool isPointerDown;
     public bool isPointerHovered;
 
     [Header("Reference Data")]
     [SerializeField] private GameManager gameManager;
 
-    private void Awake()
+    private void Start()
     {
         // setup vars
         appElements.SetActive(false);
         appElements.GetComponent<RectTransform>().localScale = new Vector3(0,0,1);
         appElements.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
-        appMask.GetComponent<Mask>().enabled = true;
     }
 
     public void PointerCancelHandler(string cancelReason) 
@@ -60,7 +58,7 @@ public class AppManager : MonoBehaviour
         while (isPointerDown)
         {
             // long press limit reached, follow mouse
-            if (time > .55f)
+            if (time > .50f)
             {
                 // make sure app appears over other apps, but below persistentui
                 gameObject.transform.SetSiblingIndex(gameManager.persistentObject.transform.GetSiblingIndex() - 1);
@@ -72,7 +70,7 @@ public class AppManager : MonoBehaviour
             yield return null;
         }
         // pointerup triggered earlier than long press limit reached or called from navbar
-        if ((time < .55f && isPointerHovered) || isExternal)
+        if ((time < .50f && isPointerHovered) || isExternal)
         {
             // Handle transition
             if (gameManager.activeApp == gameObject)
@@ -81,8 +79,6 @@ public class AppManager : MonoBehaviour
             }
             else if (gameManager.activeApp == null)
             {
-                appElements.transform.SetParent(gameManager.canvasObject);
-                appElements.transform.SetParent(gameObject.transform);
                 StartCoroutine(TransitionAnimationHandler("in"));
             }
             yield break;
@@ -139,15 +135,13 @@ public class AppManager : MonoBehaviour
     
     public IEnumerator TransitionAnimationHandler(string animationType)
     {
-        // move mask outside of app
+        // move elements outside of app
         appElements.SetActive(true);
-        appElements.name = gameObject.name + "Content";
-        appElements.transform.SetParent(gameManager.canvasObject);
-
+        appElements.transform.SetSiblingIndex(gameManager.persistentObject.transform.GetSiblingIndex() - 1);
         // make sure persistent stays on top
         gameManager.persistentObject.transform.SetAsLastSibling();
 
-        // reset mask to expected values
+        // reset to expected values
         Vector2 currentRectSize = animationType == "in" ? new Vector2(0, 0) : new Vector2(1, 1);
         Vector3 currentRectPosition = animationType == "in" ? transform.localPosition : new Vector3(0,0,0);
         appElements.GetComponent<RectTransform>().localScale = currentRectSize;
@@ -174,10 +168,30 @@ public class AppManager : MonoBehaviour
         if (animationType == "out")
         {
             appElements.SetActive(false);
-            appElements.name = "Elements";
-            appElements.transform.SetParent(gameObject.transform);
             gameManager.activeApp = null;
         }
+
+        // reset main page scrollviews on app load, hacky shit incoming
+        try {StartCoroutine(ScrollViewResetHandler(appElements.GetComponent<BubblManager>().postView));}
+        catch {}
+        try {StartCoroutine(ScrollViewResetHandler(appElements.GetComponent<MessagesManager>().chatView));}
+        catch {}
+        try {StartCoroutine(ScrollViewResetHandler(appElements.GetComponent<GoodMailManager>().mailListView));}
+        catch {}
+    }
+
+    private IEnumerator ScrollViewResetHandler(GameObject targetView)
+    {
+        float time = 0f;
+        float originalPosition = targetView.GetComponent<ScrollRect>().verticalNormalizedPosition;
+        // animate view
+        while (time < gameManager.animationSpeed)
+        {
+            time += Time.deltaTime;
+            targetView.GetComponent<ScrollRect>().verticalNormalizedPosition = Mathf.Lerp(originalPosition, 1f, time / gameManager.animationSpeed);
+            yield return null;
+        }
+        targetView.GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
     }
 
     public void BackNavigationHandler()
@@ -190,6 +204,10 @@ public class AppManager : MonoBehaviour
         else if (appTitle.GetComponent<TMP_Text>().text == "Bubbl")
         {
             appElements.GetComponent<BubblManager>().BackNavigationHandler();
+        }
+        else if (appTitle.GetComponent<TMP_Text>().text == "GoodMail")
+        {
+            appElements.GetComponent<GoodMailManager>().BackNavigationHandler();
         }
         else
         {

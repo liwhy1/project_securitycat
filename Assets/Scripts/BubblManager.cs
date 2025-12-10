@@ -11,37 +11,51 @@ public class BubblManager : MonoBehaviour
     [Header("Reference Data")]
     [SerializeField] private GameManager gameManager;
     [SerializeField] private AppManager appManager;
-
-    [Header("Local Data")]
-    [SerializeField] private string currentState;
-    [SerializeField] private string lastState;
-    private int lastPageHits;
-    [SerializeField] private GameObject currentTargetPost;
     [SerializeField] private GameObject messageInstance;
     [SerializeField] private GameObject postInstance;
+
+    [Header("Local Data")]
+    [SerializeField] private GameObject currentState;
+    [SerializeField] private GameObject lastState;
+    private int lastPageHits;
+    private bool isTransitioning;
+    [SerializeField] private GameObject currentTargetPost;
     [SerializeField] private GameObject postContent;
     [SerializeField] private GameObject commentContent;
     [SerializeField] private GameObject viewHolder;
+    public GameObject postView;
+    [SerializeField] private GameObject profileView;
     [SerializeField] private GameObject commentsView;
+    [SerializeField] private Button commentsBackButton;
     [SerializeField] private Button postsButton;
-    [SerializeField] private Button searchButton;
     [SerializeField] private Button profileButton;
-    [SerializeField] private List<PostContentTemplate> activePosts = new List<PostContentTemplate>(); // chat:content
+    [SerializeField] private GameObject messageAssessmentScreen;
+    [SerializeField] private Button messageAssessButton;
+    [SerializeField] private Button messageAssessConfirmButton;
+    [SerializeField] private Button messageAssessReturnButton;
+    [SerializeField] private List<PostContentTemplate> activePosts = new List<PostContentTemplate>(); // post:content
 
-    private void Awake()
+    private void Start()
     {
         // setup vars
-        currentState = "posts";
+        currentState = postView;
+        postView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 40f, 0f);
         commentsView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -1904f, 0f);
-        commentsView.SetActive(true);
-        viewHolder.transform.Find("PostView").GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 40f, 0f);
-        viewHolder.transform.Find("SearchView").GetComponent<RectTransform>().transform.localPosition = new Vector3(1166f, 40f, 0f);
-        viewHolder.transform.Find("ProfileView").GetComponent<RectTransform>().transform.localPosition = new Vector3(2330f, 40f, 0f);
+        profileView.GetComponent<RectTransform>().transform.localPosition = new Vector3(postView.GetComponent<RectTransform>().rect.width, 40f, 0f);
+        messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -96f, 0f);
+        postView.SetActive(true);
+        commentsView.SetActive(false);
+        profileView.SetActive(false);
+        messageAssessmentScreen.SetActive(false);
+        commentContent.SetActive(false);
 
         // setup buttons
-        postsButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("posts")); lastPageHits = 0; } );
-        searchButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("search")); lastPageHits = 0; } );
-        profileButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler("profile")); lastPageHits = 0; } );
+        postsButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler(postView)); lastPageHits = 0; } );
+        profileButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler(profileView)); lastPageHits = 0; } );
+        commentsBackButton.onClick.AddListener(delegate { StartCoroutine(PageTransitionHandler(postView)); lastPageHits = 0; } );
+        messageAssessButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(true); });
+        messageAssessConfirmButton.onClick.AddListener(delegate { AssessmentHandler(); });
+        messageAssessReturnButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(false); });
 
         // generate postsview
         PostViewHandler();
@@ -59,7 +73,6 @@ public class BubblManager : MonoBehaviour
             newPost.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = "User #" + i;
             int r = UnityEngine.Random.Range(1,5);
             newPost.transform.Find("Info").gameObject.GetComponent<TMP_Text>().text = "Posted: " + r + (r > 1 ? " days ago." : " day ago.");
-            
             // generate openable posts
             if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < 3) 
             {
@@ -83,6 +96,8 @@ public class BubblManager : MonoBehaviour
         newContent.SetActive(false);
         newContent.transform.SetParent(commentContent.transform.parent);
         newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+        newContent.GetComponent<RectTransform>().sizeDelta = new Vector3(0f, 0f, 0f);
+        newContent.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
         activePosts.Add(new PostContentTemplate {postObject = postObject, contentObject = newContent});
         for (int i = 0; i < 10; i++)
         {
@@ -98,35 +113,60 @@ public class BubblManager : MonoBehaviour
     private void PostInteractionHandler(GameObject newPost)
     {
         currentTargetPost = newPost;
-        StartCoroutine(PageTransitionHandler("commentsView"));
+        StartCoroutine(PageTransitionHandler(commentsView));
     }
 
-    // TODO: REFRACT THIS SHIT
-    private IEnumerator PageTransitionHandler(string targetPage)
+    public void AssessmentHandler()
+    {
+        messageAssessButton.gameObject.SetActive(false);
+        
+        // disable current post TODO: is this temp?
+        var activePost = activePosts.FirstOrDefault(x => x.contentObject == commentsView.GetComponent<ScrollRect>().content.gameObject);
+        activePost.postObject.transform.Find("Notice").gameObject.SetActive(false);
+        activePost.postObject.GetComponent<Image>().color = new Color32(177,177,177,255);
+        activePost.postObject.GetComponent<Button>().interactable = false;
+        
+        // return to post page
+        StartCoroutine(PageTransitionHandler(postView));
+    }
+
+    private IEnumerator PageTransitionHandler(GameObject targetPage)
     {
         // don't try to transition to the same page
         if (currentState == targetPage) yield break;
         
-        bool isCommentsActive = commentsView.GetComponent<RectTransform>().transform.localPosition == new Vector3(0f, -256f, 0f);
         // prevent interaction with posts while comments are up
-        if (isCommentsActive && targetPage != "posts") yield break;
+        if (commentsView.activeSelf && targetPage != postView) yield break;
+
+        // another transition already in progress
+        if (isTransitioning) yield break;
+        isTransitioning = true;
 
         float time = 0f;
         lastState = currentState;
         currentState = targetPage;
-        GameObject targetObject = targetPage == "commentsView" || isCommentsActive ? commentsView : viewHolder;
-        if (targetPage == "commentsView") commentsView.transform.SetParent(gameObject.transform);
-        else if (!isCommentsActive) commentsView.transform.SetParent(viewHolder.transform);
+        
+        // ensure only current and targetpage is visible
+        PageVisibilityHandler();
+        
+        // setup transition vars
+        GameObject targetObject = targetPage == commentsView || commentsView.activeSelf ? commentsView : viewHolder;
         Vector3 originalPosition = targetObject.GetComponent<RectTransform>().transform.localPosition;
-        float targetPositionX = targetPage == "posts" || targetPage == "commentsView" ? 0f : targetPage == "search" ? -1166f : -2330f;
-        float targetPositionY = targetPage == "commentsView" ? -256f : targetPage == "posts" && isCommentsActive ? -1904f : 0f;
+        float targetPositionX = targetPage == postView || targetPage == commentsView ? 0f : postView.GetComponent<RectTransform>().rect.width * -1;
+        float targetPositionY = targetPage == commentsView ? 38f : targetPage == postView && commentsView.activeSelf ? -1904f : 0f;
 
-        viewHolder.transform.Find("PostView").gameObject.GetComponent<ScrollRect>().enabled = true;
-        if (targetPage == "commentsView")
+        if (targetPage == commentsView)
         {
-            viewHolder.transform.Find("PostView").gameObject.GetComponent<ScrollRect>().enabled = false;
+            // handle gameobjects before transition
+            messageAssessButton.gameObject.SetActive(true);
+            appManager.appTitle.SetActive(false);
+            postsButton.gameObject.SetActive(false);
+            profileButton.gameObject.SetActive(false);
+
+            // disable all comment sections
             activePosts.ForEach(x => x.contentObject.SetActive(false));
             var targetComments = activePosts.FirstOrDefault(x => x.postObject == currentTargetPost);
+            // set target comment sections
             commentsView.GetComponent<ScrollRect>().content = targetComments.contentObject.GetComponent<RectTransform>();
             targetComments.contentObject.SetActive(true);
         }
@@ -139,13 +179,40 @@ public class BubblManager : MonoBehaviour
             yield return null;
         }
         targetObject.GetComponent<RectTransform>().transform.localPosition = new Vector3(targetPositionX, targetPositionY, originalPosition.z);
+        
+        // enable navbar & title when moving to postview
+        if (targetPage == postView)
+        {
+            postsButton.gameObject.SetActive(true);
+            profileButton.gameObject.SetActive(true);
+            appManager.appTitle.SetActive(true);
+        }
+        
+        // reset commentsview position
+        if (targetPage == commentsView) commentsView.GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
 
+        // free up transition state
+        isTransitioning = false;
+
+        // hide last state after transition finished, expect when switching between comments a posts
+        if (lastState == postView && currentState == commentsView) yield break;
+        lastState.SetActive(false);
+    }
+
+    private void PageVisibilityHandler()
+    {
+        postView.SetActive(false);
+        commentsView.SetActive(false);
+        profileView.SetActive(false);
+        messageAssessmentScreen.SetActive(false);
+        currentState.SetActive(true);
+        lastState.SetActive(true);
     }
 
     public void BackNavigationHandler()
     {
-        // bail if we are on chatlist or lastpagehit is reached
-        if (lastPageHits > 2 || currentState == "posts") 
+        // bail if we are on postview or lastpagehit is reached
+        if (lastPageHits > 2 || currentState == postView) 
         { 
             lastPageHits = 0; 
             StartCoroutine(appManager.AppInteractionHandler(true)); 
