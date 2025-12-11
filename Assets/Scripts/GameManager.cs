@@ -17,12 +17,14 @@ public class GameManager : MonoBehaviour
 
     [Header("Reference Data")]
     public Transform canvasObject;
+    public Transform canvasLimiterObject;
     public Transform persistentObject;
     public TextAsset messagesChats;
 
     [Header("Local Data")]
     public float animationSpeed;
     public GameObject activeApp;
+    private float screenWidth;
     [SerializeField] private GameObject gridInstance;
     [SerializeField] private GameObject gridHolder;
     [SerializeField] TMP_Text statusBarTime;
@@ -44,14 +46,10 @@ public class GameManager : MonoBehaviour
         
         // setup vars
         animationSpeed = .25f;
+        screenWidth = canvasObject.GetComponent<RectTransform>().rect.width;
         gridInstance.SetActive(false);
-
-        QualitySettings.vSyncCount = 1;
-        Application.targetFrameRate = 144;
-
-        HomeGridHandler();
         StartCoroutine(StatusBarUpdateHandler());
-        AppInitializationHandler();
+        StartCoroutine(ScreenWidthUpdateHandler());
         AppContentParseHandler();
     }
 
@@ -75,8 +73,27 @@ public class GameManager : MonoBehaviour
         while (true)
         {
             statusBarTime.text = DateTime.Now.ToString().Split(" ")[1].Split(":")[0] + ":" + DateTime.Now.ToString().Split(" ")[1].Split(":")[1] + " " + DateTime.Now.ToString().Split(" ")[2];
+
             // refresh every 10 seconds
-            yield return new WaitForSeconds(10);            
+            yield return new WaitForSeconds(10f);      
+        }
+    }
+
+    private IEnumerator ScreenWidthUpdateHandler()
+    {
+        while (true)
+        {
+            if (screenWidth != canvasObject.GetComponent<RectTransform>().rect.width)
+            {
+                Debug.Log("Reevaluating screen size! " + screenWidth + "->" + canvasObject.GetComponent<RectTransform>().rect.width);
+                screenWidth = canvasObject.GetComponent<RectTransform>().rect.width;
+                var size = canvasLimiterObject.GetComponent<RectTransform>().sizeDelta;
+                size.x = screenWidth > 1500f ? 1500f : canvasObject.GetComponent<RectTransform>().rect.width;
+                canvasLimiterObject.GetComponent<RectTransform>().sizeDelta = size;
+                HomeGridHandler();
+            }
+            // refresh every second
+            yield return new WaitForSeconds(1f);
         }
     }
 
@@ -96,20 +113,26 @@ public class GameManager : MonoBehaviour
 
     private void HomeGridHandler()
     {
-        // generate a 4x7 grid
-        for (int i = 0; i < 7; i++)
+        appArrayList.Clear();
+        foreach (Transform child in gridHolder.transform) Destroy(child.gameObject);
+        gridInstance.GetComponent<RectTransform>().localPosition = new Vector3(150f - canvasLimiterObject.GetComponent<RectTransform>().rect.width / 2, canvasLimiterObject.GetComponent<RectTransform>().rect.height/2f -200f);
+
+        // generate grid
+        for (int i = 0; i < canvasLimiterObject.GetComponent<RectTransform>().rect.height / 280f; i++)
         {
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < canvasLimiterObject.GetComponent<RectTransform>().rect.width / 225f; j++)
             {
-                GameObject newGrid = Instantiate(gridInstance, new Vector3(gridInstance.transform.position.x + 215 * j, gridInstance.transform.position.y - 220 * i, gridInstance.transform.position.z), Quaternion.identity);
-                newGrid.name = "Grid" + i + j;
+                GameObject newGrid = Instantiate(gridInstance, new Vector3(0f, 0f, 1f), Quaternion.identity);
                 newGrid.transform.SetParent(gridHolder.transform);
+                newGrid.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+                newGrid.GetComponent<RectTransform>().localPosition = new Vector2(gridInstance.GetComponent<RectTransform>().localPosition.x + 200f * j, gridInstance.GetComponent<RectTransform>().localPosition.y - 220f * i);
+                newGrid.name = "Grid" + i + j;
                 appArrayList.Add(new AppListTemplate {appObject = null, arrayObject = newGrid});
                 newGrid.SetActive(false);
             }
         }
-        Destroy(gridInstance);
         Debug.Log("HomeGrid generated!");
+        AppInitializationHandler();
     }
 
     public void NavigationInteractionHandler(GameObject navigatorObject)

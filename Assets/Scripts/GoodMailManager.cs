@@ -143,6 +143,8 @@ public class GoodMailManager : MonoBehaviour
         PageVisibilityHandler();
 
         // setup transition vars
+        mailListView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 30f, 0f);
+        targetPage.GetComponent<RectTransform>().transform.localPosition = targetPage == profileView || targetPage == mailContentView ? new Vector3(mailListView.GetComponent<RectTransform>().rect.width, 30f, 0f) : targetPage.GetComponent<RectTransform>().transform.localPosition;
         Vector3 originalPosition = viewHolder.GetComponent<RectTransform>().transform.localPosition;
         float targetPositionX = targetPage == mailListView ? 0f : mailListView.GetComponent<RectTransform>().rect.width * -1f;
         
@@ -203,6 +205,8 @@ public class GoodMailManager : MonoBehaviour
     }
     public void BackNavigationHandler()
     {
+        if (isTransitioning) return;
+
         // bail if we are on chatlist or lastpagehit is reached
         if (lastPageHits > 2 || currentState == mailListView) 
         { 

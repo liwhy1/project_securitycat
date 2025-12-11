@@ -150,6 +150,8 @@ public class BubblManager : MonoBehaviour
         PageVisibilityHandler();
         
         // setup transition vars
+        postView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 30f, 0f);
+        targetPage.GetComponent<RectTransform>().transform.localPosition = targetPage == profileView ? new Vector3(postView.GetComponent<RectTransform>().rect.width, 30f, 0f) : targetPage.GetComponent<RectTransform>().transform.localPosition;
         GameObject targetObject = targetPage == commentsView || commentsView.activeSelf ? commentsView : viewHolder;
         Vector3 originalPosition = targetObject.GetComponent<RectTransform>().transform.localPosition;
         float targetPositionX = targetPage == postView || targetPage == commentsView ? 0f : postView.GetComponent<RectTransform>().rect.width * -1;
@@ -211,6 +213,8 @@ public class BubblManager : MonoBehaviour
 
     public void BackNavigationHandler()
     {
+        if (isTransitioning) return;
+
         // bail if we are on postview or lastpagehit is reached
         if (lastPageHits > 2 || currentState == postView) 
         { 

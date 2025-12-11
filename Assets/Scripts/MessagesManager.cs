@@ -39,9 +39,6 @@ public class MessagesManager : MonoBehaviour
     {
         // setup vars
         currentState = chatView;
-        chatView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 27f, 0f);
-        profileView.GetComponent<RectTransform>().transform.localPosition = new Vector3(chatView.GetComponent<RectTransform>().rect.width, 39.6f, 0f);
-        messageView.GetComponent<RectTransform>().transform.localPosition = new Vector3(chatView.GetComponent<RectTransform>().rect.width, 26.909f, 0f);
         messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -96f, 0f);
         chatView.SetActive(true);
         messageView.SetActive(false);
@@ -106,7 +103,7 @@ public class MessagesManager : MonoBehaviour
         activeChats.Add(new ChatContentTemplate {chatObject = chatObject, contentObject = newContent});
         //string[] currentChatContent = gameManager.chatBlocks[2].Split(";");
         //for (int i = 0; i < currentChatContent.Length-1; i++)
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 14; i++)
         {
             GameObject newMessage = Instantiate(messageInstance, messageInstance.transform.position, Quaternion.identity);
             newMessage.name = "newChat";
@@ -150,6 +147,8 @@ public class MessagesManager : MonoBehaviour
         PageVisibilityHandler();
 
         // setup transition vars
+        chatView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 30f, 0f);
+        targetPage.GetComponent<RectTransform>().transform.localPosition = targetPage == profileView || targetPage == messageView ? new Vector3(chatView.GetComponent<RectTransform>().rect.width, 30f, 0f) : targetPage.GetComponent<RectTransform>().transform.localPosition;
         Vector3 originalPosition = viewHolder.GetComponent<RectTransform>().transform.localPosition;
         float targetPositionX = targetPage == chatView ? 0f : chatView.GetComponent<RectTransform>().rect.width * -1f;
         
@@ -212,6 +211,8 @@ public class MessagesManager : MonoBehaviour
 
     public void BackNavigationHandler()
     {
+        if (isTransitioning) return;
+
         // bail if we are on chatlist or lastpagehit is reached
         if (lastPageHits > 2 || currentState == chatView) 
         { 

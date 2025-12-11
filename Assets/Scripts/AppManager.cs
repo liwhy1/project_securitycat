@@ -150,7 +150,6 @@ public class AppManager : MonoBehaviour
         // set target values based on animation type
         Vector2 targetSize = animationType == "in" ? new Vector2(1, 1) : new Vector2(0, 0);
         Vector3 targetPosition = animationType == "in" ? new Vector3(0,0,0) : transform.localPosition;
-        gameManager.activeApp = animationType == "in" ? gameObject : null;
 
         // animate transition: app icon -> fullscreen app
         float time = 0f;
@@ -165,10 +164,10 @@ public class AppManager : MonoBehaviour
         // reset vars
         appElements.GetComponent<RectTransform>().localScale = targetSize;
         appElements.GetComponent<RectTransform>().localPosition = targetPosition;
+        gameManager.activeApp = animationType == "in" ? gameObject : null;
         if (animationType == "out")
         {
             appElements.SetActive(false);
-            gameManager.activeApp = null;
         }
 
         // reset main page scrollviews on app load, hacky shit incoming
