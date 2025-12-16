@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject gridInstance;
     [SerializeField] private GameObject gridHolder;
     [SerializeField] TMP_Text statusBarTime;
+    public GameObject assessmentElements;
+    [SerializeField] private Button assessmentReturnButton;
+    [SerializeField] private Button assessmentConfirmButton;
     public List<AppListTemplate> appArrayList = new List<AppListTemplate>();
     public List<GameObject> appList;
     public List<string> chatBlocks;
@@ -47,10 +50,16 @@ public class GameManager : MonoBehaviour
         // setup vars
         animationSpeed = .25f;
         screenWidth = canvasObject.GetComponent<RectTransform>().rect.width;
+        canvasLimiterObject.GetComponent<Mask>().enabled = true;
         gridInstance.SetActive(false);
+        AssessmentVisibilityHandler(false);
         StartCoroutine(StatusBarUpdateHandler());
         StartCoroutine(ScreenWidthUpdateHandler());
         AppContentParseHandler();
+
+        // setup buttons
+        assessmentReturnButton.onClick.AddListener(delegate { AssessmentVisibilityHandler(false); });
+        assessmentConfirmButton.onClick.AddListener(delegate { activeApp.GetComponent<AppManager>().AssessmentHandler(); });
     }
 
     private void AppContentParseHandler()
@@ -97,6 +106,28 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void AssessmentVisibilityHandler(bool assessmentActivity)
+    {
+        if (assessmentActivity)
+        {
+            assessmentElements.SetActive(true);
+            assessmentElements.transform.SetParent(activeApp.GetComponent<AppManager>().appElements.transform);
+        }
+        else
+        {
+            assessmentElements.SetActive(false);
+            assessmentElements.transform.SetParent(canvasLimiterObject);
+            assessmentElements.transform.SetSiblingIndex(persistentObject.GetSiblingIndex() - 1);
+        }
+        if (activeApp != null)
+        {
+            string contentType = activeApp.name.Contains("Messages") ? "chat" : activeApp.name.Contains("GoodMail") ? "mail" : activeApp.name.Contains("Bubbl") ? "post" : "current";
+            assessmentElements.transform.Find("Title").GetComponent<TMP_Text>().text = "Assess results from " + contentType +" content!";
+        }
+        assessmentElements.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -155.5f, 0f);
+        assessmentElements.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+    }
+
     public void AppInitializationHandler()
     {
         foreach (var app in appList)
@@ -115,7 +146,7 @@ public class GameManager : MonoBehaviour
     {
         appArrayList.Clear();
         foreach (Transform child in gridHolder.transform) Destroy(child.gameObject);
-        gridInstance.GetComponent<RectTransform>().localPosition = new Vector3(150f - canvasLimiterObject.GetComponent<RectTransform>().rect.width / 2, canvasLimiterObject.GetComponent<RectTransform>().rect.height/2f -200f);
+        gridInstance.GetComponent<RectTransform>().localPosition = new Vector3(150f - canvasLimiterObject.GetComponent<RectTransform>().rect.width / 2f, canvasLimiterObject.GetComponent<RectTransform>().rect.height/ 2f -200f);
 
         // generate grid
         for (int i = 0; i < canvasLimiterObject.GetComponent<RectTransform>().rect.height / 280f; i++)
@@ -147,6 +178,7 @@ public class GameManager : MonoBehaviour
             }
             else if (navigatorObject.name.Contains("Home"))
             {
+                assessmentElements.SetActive(false);
                 StartCoroutine(activeApp.GetComponent<AppManager>().TransitionAnimationHandler("out"));
             }
         }

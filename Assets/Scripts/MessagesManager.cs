@@ -29,30 +29,24 @@ public class MessagesManager : MonoBehaviour
     [SerializeField] private Button messagesButton;
     [SerializeField] private Button profileButton;
     [SerializeField] private Button messageBackButton;
-    [SerializeField] private GameObject messageAssessmentScreen;
     [SerializeField] private Button messageAssessButton;
-    [SerializeField] private Button messageAssessConfirmButton;
-    [SerializeField] private Button messageAssessReturnButton;
     [SerializeField] private List<ChatContentTemplate> activeChats = new List<ChatContentTemplate>(); // chat:content
 
     private void Start()
     {
         // setup vars
         currentState = chatView;
-        messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -96f, 0f);
         chatView.SetActive(true);
         messageView.SetActive(false);
         profileView.SetActive(false);
-        messageAssessmentScreen.SetActive(false);
         messageContent.SetActive(false);
+        messageAssessButton.gameObject.SetActive(true);
 
         // setup buttons
         messagesButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler(chatView)); lastPageHits = 0; } );
         profileButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler(profileView)); lastPageHits = 0; } );
         messageBackButton.onClick.AddListener(delegate { StartCoroutine(PageTransitionHandler(chatView)); lastPageHits = 0; } );
-        messageAssessButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(true); });
-        messageAssessConfirmButton.onClick.AddListener(delegate { AssessmentHandler(); });
-        messageAssessReturnButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(false); });
+        messageAssessButton.onClick.AddListener(delegate { gameManager.AssessmentVisibilityHandler(true); });
 
         // generate chatview
         ChatViewHandler();
@@ -100,7 +94,7 @@ public class MessagesManager : MonoBehaviour
         newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         newContent.GetComponent<RectTransform>().sizeDelta = new Vector3(0f, 0f, 0f);
         newContent.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
-        activeChats.Add(new ChatContentTemplate {chatObject = chatObject, contentObject = newContent});
+        activeChats.Add(new ChatContentTemplate {chatObject = chatObject, contentObject = newContent, isAssessed = false});
         //string[] currentChatContent = gameManager.chatBlocks[2].Split(";");
         //for (int i = 0; i < currentChatContent.Length-1; i++)
         for (int i = 0; i < 14; i++)
@@ -119,15 +113,16 @@ public class MessagesManager : MonoBehaviour
     public void AssessmentHandler()
     {
         messageAssessButton.gameObject.SetActive(false);
-        
+
         // disable current chat TODO: is this temp?
         var activeChat = activeChats.FirstOrDefault(x => x.contentObject == messageView.GetComponent<ScrollRect>().content.gameObject);
         activeChat.chatObject.transform.Find("Notice").gameObject.SetActive(false);
-        activeChat.chatObject.GetComponent<Image>().color = new Color32(177,177,177,255);
-        activeChat.chatObject.GetComponent<Button>().interactable = false;
+        activeChat.isAssessed = true;
+        //activeChat.chatObject.GetComponent<Image>().color = new Color32(177,177,177,255);
+        //activeChat.chatObject.GetComponent<Button>().interactable = false;
         
         // return to chat page
-        StartCoroutine(PageTransitionHandler(chatView));
+        //StartCoroutine(PageTransitionHandler(chatView));
     }
 
     private IEnumerator PageTransitionHandler(GameObject targetPage)
@@ -155,12 +150,9 @@ public class MessagesManager : MonoBehaviour
         if (targetPage == messageView)
         {
             // handle gameobjects before transition
-            messageAssessmentScreen.SetActive(false);
             messagesButton.gameObject.SetActive(false);
             profileButton.gameObject.SetActive(false);
             messageView.SetActive(true);
-            appManager.appTitle.SetActive(false);
-            messageAssessButton.gameObject.SetActive(true);
 
             // handle target page before transition
             if (currentTargetChat == null) { Debug.Log("Well shit."); yield return null;}
@@ -169,6 +161,8 @@ public class MessagesManager : MonoBehaviour
             messageView.GetComponent<ScrollRect>().content = targetChat.contentObject.GetComponent<RectTransform>();
             targetChat.contentObject.SetActive(true);
             messageView.transform.Find("Sender").GetComponent<TMP_Text>().text = currentTargetChat.transform.Find("Sender").GetComponent<TMP_Text>().text;
+            if (targetChat.isAssessed) messageAssessButton.gameObject.SetActive(false);
+            else messageAssessButton.gameObject.SetActive(true);
         }
 
         // animate chat page
@@ -185,18 +179,17 @@ public class MessagesManager : MonoBehaviour
         {
             messagesButton.gameObject.SetActive(true);
             profileButton.gameObject.SetActive(true);
-            appManager.appTitle.SetActive(true);
             currentTargetChat = null;
         }
 
         // reset messageview position
-        if (targetPage == messageView) messageView.GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
-
-        // free up transition state
-        isTransitioning = false;
+        if (targetPage == messageView) StartCoroutine(appManager.ScrollViewResetHandler(messageView));
 
         // hide last state after transition finished
         lastState.SetActive(false);
+
+        // free up transition state
+        isTransitioning = false;
     }
 
     private void PageVisibilityHandler()
@@ -204,7 +197,7 @@ public class MessagesManager : MonoBehaviour
         chatView.SetActive(false);
         messageView.SetActive(false);
         profileView.SetActive(false);
-        messageAssessmentScreen.SetActive(false);
+        gameManager.AssessmentVisibilityHandler(false);
         currentState.SetActive(true);
         lastState.SetActive(true);
     }
@@ -232,4 +225,5 @@ public class ChatContentTemplate
 {
     public GameObject chatObject;
     public GameObject contentObject;
+    public bool isAssessed;
 }

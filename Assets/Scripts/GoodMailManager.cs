@@ -29,10 +29,7 @@ public class GoodMailManager : MonoBehaviour
     [SerializeField] private Button mailListButton;
     [SerializeField] private Button profileButton;
     [SerializeField] private Button mailBackButton;
-    [SerializeField] private GameObject messageAssessmentScreen;
-    [SerializeField] private Button messageAssessButton;
-    [SerializeField] private Button messageAssessConfirmButton;
-    [SerializeField] private Button messageAssessReturnButton;
+    [SerializeField] private Button mailAssessButton;
     [SerializeField] private List<MailContentTemplate> activeMails = new List<MailContentTemplate>(); // mail:content
 
     private void Start()
@@ -42,20 +39,17 @@ public class GoodMailManager : MonoBehaviour
         mailListView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 27f, 0f);
         profileView.GetComponent<RectTransform>().transform.localPosition = new Vector3(mailListView.GetComponent<RectTransform>().rect.width, 39.6f, 0f);
         mailContentView.GetComponent<RectTransform>().transform.localPosition = new Vector3(mailListView.GetComponent<RectTransform>().rect.width, 26.909f, 0f);
-        messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -96f, 0f);
         mailListView.SetActive(true);
         mailContentView.SetActive(false);
         profileView.SetActive(false);
-        messageAssessmentScreen.SetActive(false);
         mailContent.SetActive(false);
+        mailAssessButton.gameObject.SetActive(true);
 
         // setup buttons
         mailListButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler(mailListView)); lastPageHits = 0; } );
         profileButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler(profileView)); lastPageHits = 0; } );
         mailBackButton.onClick.AddListener(delegate { StartCoroutine(PageTransitionHandler(mailListView)); lastPageHits = 0; } );
-        messageAssessButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(true); });
-        messageAssessConfirmButton.onClick.AddListener(delegate { AssessmentHandler(); });
-        messageAssessReturnButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(false); });
+        mailAssessButton.onClick.AddListener(delegate { gameManager.AssessmentVisibilityHandler(true); });
 
         // generate mailview
         PhotoViewHandler();
@@ -97,7 +91,7 @@ public class GoodMailManager : MonoBehaviour
         newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         newContent.GetComponent<RectTransform>().sizeDelta = new Vector3(0f, 0f, 0f);
         newContent.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
-        activeMails.Add(new MailContentTemplate {mailObject = mailObject, contentObject = newContent});
+        activeMails.Add(new MailContentTemplate {mailObject = mailObject, contentObject = newContent, isAssessed = false});
 
         GameObject newMail = Instantiate(mailContentInstance, mailContentInstance.transform.position, Quaternion.identity);
         newMail.name = "newMail";
@@ -114,16 +108,17 @@ public class GoodMailManager : MonoBehaviour
 
     public void AssessmentHandler()
     {
-        messageAssessButton.gameObject.SetActive(false);
-        
+        mailAssessButton.gameObject.SetActive(false);
+
         // disable current chat TODO: is this temp?
         var activeMail = activeMails.FirstOrDefault(x => x.contentObject == mailContentView.GetComponent<ScrollRect>().content.gameObject);
         activeMail.mailObject.transform.Find("Notice").gameObject.SetActive(false);
-        activeMail.mailObject.GetComponent<Image>().color = new Color32(177,177,177,255);
-        activeMail.mailObject.GetComponent<Button>().interactable = false;
+        activeMail.isAssessed = true;
+        //activeMail.mailObject.GetComponent<Image>().color = new Color32(177,177,177,255);
+        //activeMail.mailObject.GetComponent<Button>().interactable = false;
         
         // return to chat page
-        StartCoroutine(PageTransitionHandler(mailListView));
+        //StartCoroutine(PageTransitionHandler(mailListView));
     }
 
     private IEnumerator PageTransitionHandler(GameObject targetPage)
@@ -151,12 +146,9 @@ public class GoodMailManager : MonoBehaviour
         if (targetPage == mailContentView)
         {
             // handle gameobjects before transition
-            messageAssessmentScreen.SetActive(false);
             mailListButton.gameObject.SetActive(false);
             profileButton.gameObject.SetActive(false);
             mailContentView.SetActive(true);
-            appManager.appTitle.SetActive(false);
-            messageAssessButton.gameObject.SetActive(true);
 
             // handle target page before transition
             if (currentTargetMail == null) { Debug.Log("Well shit."); yield return null;}
@@ -164,6 +156,9 @@ public class GoodMailManager : MonoBehaviour
             var targetMail = activeMails.FirstOrDefault(x => x.mailObject == currentTargetMail);
             mailContentView.GetComponent<ScrollRect>().content = targetMail.contentObject.GetComponent<RectTransform>();
             targetMail.contentObject.SetActive(true);
+            mailContentView.transform.Find("Sender").GetComponent<TMP_Text>().text = currentTargetMail.transform.Find("Sender").GetComponent<TMP_Text>().text;
+            if (targetMail.isAssessed) mailAssessButton.gameObject.SetActive(false);
+            else mailAssessButton.gameObject.SetActive(true);
         }
 
         // animate chat page
@@ -180,18 +175,17 @@ public class GoodMailManager : MonoBehaviour
         {
             mailListButton.gameObject.SetActive(true);
             profileButton.gameObject.SetActive(true);
-            appManager.appTitle.SetActive(true);
             currentTargetMail = null;
         }
 
         // reset mailcontentview position
-        if (targetPage == mailContentView) mailContentView.GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
-    
-        // free up transition state
-        isTransitioning = false;
+        if (targetPage == mailContentView) StartCoroutine(appManager.ScrollViewResetHandler(mailContentView));
 
         // hide last state after transition finished
         lastState.SetActive(false);
+
+        // free up transition state
+        isTransitioning = false;
     }
     
     private void PageVisibilityHandler()
@@ -199,7 +193,7 @@ public class GoodMailManager : MonoBehaviour
         mailListView.SetActive(false);
         mailContentView.SetActive(false);
         profileView.SetActive(false);
-        messageAssessmentScreen.SetActive(false);
+        gameManager.AssessmentVisibilityHandler(false);
         currentState.SetActive(true);
         lastState.SetActive(true);
     }
@@ -226,4 +220,5 @@ public class MailContentTemplate
 {
     public GameObject mailObject;
     public GameObject contentObject;
+    public bool isAssessed;
 }

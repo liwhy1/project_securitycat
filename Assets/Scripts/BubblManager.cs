@@ -29,10 +29,7 @@ public class BubblManager : MonoBehaviour
     [SerializeField] private Button commentsBackButton;
     [SerializeField] private Button postsButton;
     [SerializeField] private Button profileButton;
-    [SerializeField] private GameObject messageAssessmentScreen;
-    [SerializeField] private Button messageAssessButton;
-    [SerializeField] private Button messageAssessConfirmButton;
-    [SerializeField] private Button messageAssessReturnButton;
+    [SerializeField] private Button postAssessButton;
     [SerializeField] private List<PostContentTemplate> activePosts = new List<PostContentTemplate>(); // post:content
 
     private void Start()
@@ -42,20 +39,17 @@ public class BubblManager : MonoBehaviour
         postView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 40f, 0f);
         commentsView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -1904f, 0f);
         profileView.GetComponent<RectTransform>().transform.localPosition = new Vector3(postView.GetComponent<RectTransform>().rect.width, 40f, 0f);
-        messageAssessmentScreen.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -96f, 0f);
         postView.SetActive(true);
         commentsView.SetActive(false);
         profileView.SetActive(false);
-        messageAssessmentScreen.SetActive(false);
         commentContent.SetActive(false);
+        postAssessButton.gameObject.SetActive(true);
 
         // setup buttons
         postsButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler(postView)); lastPageHits = 0; } );
         profileButton.onClick.AddListener(delegate {StartCoroutine(PageTransitionHandler(profileView)); lastPageHits = 0; } );
         commentsBackButton.onClick.AddListener(delegate { StartCoroutine(PageTransitionHandler(postView)); lastPageHits = 0; } );
-        messageAssessButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(true); });
-        messageAssessConfirmButton.onClick.AddListener(delegate { AssessmentHandler(); });
-        messageAssessReturnButton.onClick.AddListener(delegate { messageAssessmentScreen.SetActive(false); });
+        postAssessButton.onClick.AddListener(delegate { gameManager.AssessmentVisibilityHandler(true); });
 
         // generate postsview
         PostViewHandler();
@@ -98,7 +92,7 @@ public class BubblManager : MonoBehaviour
         newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         newContent.GetComponent<RectTransform>().sizeDelta = new Vector3(0f, 0f, 0f);
         newContent.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
-        activePosts.Add(new PostContentTemplate {postObject = postObject, contentObject = newContent});
+        activePosts.Add(new PostContentTemplate {postObject = postObject, contentObject = newContent, isAssessed = false});
         for (int i = 0; i < 10; i++)
         {
             GameObject newMessage = Instantiate(messageInstance, messageInstance.transform.position, Quaternion.identity);
@@ -118,16 +112,18 @@ public class BubblManager : MonoBehaviour
 
     public void AssessmentHandler()
     {
-        messageAssessButton.gameObject.SetActive(false);
-        
+        postAssessButton.gameObject.SetActive(false);
+
+
         // disable current post TODO: is this temp?
         var activePost = activePosts.FirstOrDefault(x => x.contentObject == commentsView.GetComponent<ScrollRect>().content.gameObject);
         activePost.postObject.transform.Find("Notice").gameObject.SetActive(false);
-        activePost.postObject.GetComponent<Image>().color = new Color32(177,177,177,255);
-        activePost.postObject.GetComponent<Button>().interactable = false;
+        activePost.isAssessed = true;
+        //activePost.postObject.GetComponent<Image>().color = new Color32(177,177,177,255);
+        //activePost.postObject.GetComponent<Button>().interactable = false;
         
         // return to post page
-        StartCoroutine(PageTransitionHandler(postView));
+        //StartCoroutine(PageTransitionHandler(postView));
     }
 
     private IEnumerator PageTransitionHandler(GameObject targetPage)
@@ -160,17 +156,17 @@ public class BubblManager : MonoBehaviour
         if (targetPage == commentsView)
         {
             // handle gameobjects before transition
-            messageAssessButton.gameObject.SetActive(true);
-            appManager.appTitle.SetActive(false);
             postsButton.gameObject.SetActive(false);
             profileButton.gameObject.SetActive(false);
 
-            // disable all comment sections
+            // handle target page before transition
             activePosts.ForEach(x => x.contentObject.SetActive(false));
             var targetComments = activePosts.FirstOrDefault(x => x.postObject == currentTargetPost);
-            // set target comment sections
             commentsView.GetComponent<ScrollRect>().content = targetComments.contentObject.GetComponent<RectTransform>();
             targetComments.contentObject.SetActive(true);
+            commentsView.transform.Find("Sender").GetComponent<TMP_Text>().text = currentTargetPost.transform.Find("User").GetComponent<TMP_Text>().text;
+            if (targetComments.isAssessed) postAssessButton.gameObject.SetActive(false);
+            else postAssessButton.gameObject.SetActive(true);
         }
 
         // animate page
@@ -187,18 +183,16 @@ public class BubblManager : MonoBehaviour
         {
             postsButton.gameObject.SetActive(true);
             profileButton.gameObject.SetActive(true);
-            appManager.appTitle.SetActive(true);
         }
-        
+
         // reset commentsview position
-        if (targetPage == commentsView) commentsView.GetComponent<ScrollRect>().verticalNormalizedPosition = 1f;
+        if (targetPage == commentsView) StartCoroutine(appManager.ScrollViewResetHandler(commentsView));
+    
+        // hide last state after transition finished
+        lastState.SetActive(false);
 
         // free up transition state
         isTransitioning = false;
-
-        // hide last state after transition finished, expect when switching between comments a posts
-        if (lastState == postView && currentState == commentsView) yield break;
-        lastState.SetActive(false);
     }
 
     private void PageVisibilityHandler()
@@ -206,7 +200,7 @@ public class BubblManager : MonoBehaviour
         postView.SetActive(false);
         commentsView.SetActive(false);
         profileView.SetActive(false);
-        messageAssessmentScreen.SetActive(false);
+        gameManager.AssessmentVisibilityHandler(false);
         currentState.SetActive(true);
         lastState.SetActive(true);
     }
@@ -234,4 +228,5 @@ public class PostContentTemplate
 {
     public GameObject postObject;
     public GameObject contentObject;
+    public bool isAssessed;
 }

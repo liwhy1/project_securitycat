@@ -8,8 +8,8 @@ public class AppManager : MonoBehaviour
 {
     [Header("Local App Data")]
     [SerializeField] private GameObject appIcon;
-    public GameObject appTitle;
-    [SerializeField] private GameObject appElements;
+    [SerializeField] private string appTitle;
+    public GameObject appElements;
     public bool isPointerDown;
     public bool isPointerHovered;
 
@@ -20,8 +20,9 @@ public class AppManager : MonoBehaviour
     {
         // setup vars
         appElements.SetActive(false);
-        appElements.GetComponent<RectTransform>().localScale = new Vector3(0,0,1);
+        appElements.GetComponent<RectTransform>().localScale = new Vector3(0f, 0f, 1f);
         appElements.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
+        appTitle = appElements.name.Substring(0, appElements.name.Length - "Elements".Length);
     }
 
     public void PointerCancelHandler(string cancelReason) 
@@ -44,11 +45,29 @@ public class AppManager : MonoBehaviour
         if (beginReason == "pointerenter")
         { 
             isPointerHovered = true;
+            appIcon.GetComponent<Image>().color = Color.lightGray;
         }
         else if (beginReason == "pointerdown")
         {
             isPointerDown = true;
             StartCoroutine(AppInteractionHandler(false));            
+        }
+    }
+
+    public void AssessmentHandler()
+    {
+        gameManager.assessmentElements.SetActive(false);
+        switch (appTitle)
+        {
+            case "Messages":
+                appElements.GetComponent<MessagesManager>().AssessmentHandler();
+                break;
+            case "GoodMail":
+                appElements.GetComponent<GoodMailManager>().AssessmentHandler();
+                break;
+            case "Bubbl":
+                appElements.GetComponent<BubblManager>().AssessmentHandler();
+                break;
         }
     }
 
@@ -61,10 +80,10 @@ public class AppManager : MonoBehaviour
             if (time > .50f)
             {
                 // make sure app appears over other apps, but below persistentui
-                gameObject.transform.SetSiblingIndex(gameManager.persistentObject.transform.GetSiblingIndex() - 1);
+                gameObject.transform.SetSiblingIndex(gameManager.persistentObject.GetSiblingIndex() - 1);
                 // follow mouse position and highlight
                 gameObject.GetComponent<RectTransform>().position = new Vector3(gameManager.pointerAction.ReadValue<Vector2>().x, gameManager.pointerAction.ReadValue<Vector2>().y, 0f);
-                appIcon.GetComponent<Image>().color = Color.lightGray;
+                appIcon.GetComponent<Image>().color = Color.gray;
             }
             if (isPointerHovered) time += Time.deltaTime;
             yield return null;
@@ -137,9 +156,9 @@ public class AppManager : MonoBehaviour
     {
         // move elements outside of app
         appElements.SetActive(true);
-        appElements.transform.SetSiblingIndex(gameManager.persistentObject.transform.GetSiblingIndex() - 1);
+        appElements.transform.SetSiblingIndex(gameManager.persistentObject.GetSiblingIndex() - 1);
         // make sure persistent stays on top
-        gameManager.persistentObject.transform.SetAsLastSibling();
+        gameManager.persistentObject.SetAsLastSibling();
 
         // reset to expected values
         Vector2 currentRectSize = animationType == "in" ? new Vector2(0, 0) : new Vector2(1, 1);
@@ -171,15 +190,30 @@ public class AppManager : MonoBehaviour
         }
 
         // reset main page scrollviews on app load, hacky shit incoming
-        try {StartCoroutine(ScrollViewResetHandler(appElements.GetComponent<BubblManager>().postView));}
-        catch {}
-        try {StartCoroutine(ScrollViewResetHandler(appElements.GetComponent<MessagesManager>().chatView));}
-        catch {}
-        try {StartCoroutine(ScrollViewResetHandler(appElements.GetComponent<GoodMailManager>().mailListView));}
-        catch {}
+        GameObject targetView = null;
+        switch (appTitle)
+        {
+            case "Messages":
+                targetView = appElements.GetComponent<MessagesManager>().chatView;
+                break;
+            case "GoodMail":
+                targetView = appElements.GetComponent<GoodMailManager>().mailListView;
+                break;
+            case "Bubbl":
+                targetView = appElements.GetComponent<BubblManager>().postView;
+                break;
+            case "Settings":
+                targetView = appElements.GetComponent<SettingsManager>().settingsView;
+                break;
+        }
+
+        if (targetView != null)
+        {
+            StartCoroutine(ScrollViewResetHandler(targetView));
+        }
     }
 
-    private IEnumerator ScrollViewResetHandler(GameObject targetView)
+    public IEnumerator ScrollViewResetHandler(GameObject targetView)
     {
         float time = 0f;
         float originalPosition = targetView.GetComponent<ScrollRect>().verticalNormalizedPosition;
@@ -195,22 +229,24 @@ public class AppManager : MonoBehaviour
 
     public void BackNavigationHandler()
     {
-        // handle back navigation for Messages
-        if (appTitle.GetComponent<TMP_Text>().text == "Messages")
+        // handle back navigation
+        switch (appTitle)
         {
-            appElements.GetComponent<MessagesManager>().BackNavigationHandler();
-        }
-        else if (appTitle.GetComponent<TMP_Text>().text == "Bubbl")
-        {
-            appElements.GetComponent<BubblManager>().BackNavigationHandler();
-        }
-        else if (appTitle.GetComponent<TMP_Text>().text == "GoodMail")
-        {
-            appElements.GetComponent<GoodMailManager>().BackNavigationHandler();
-        }
-        else
-        {
-            StartCoroutine(TransitionAnimationHandler("out"));
+            case "Messages":
+                appElements.GetComponent<MessagesManager>().BackNavigationHandler();
+                break;
+            case "GoodMail":
+                appElements.GetComponent<GoodMailManager>().BackNavigationHandler();
+                break;
+            case "Bubbl":
+                appElements.GetComponent<BubblManager>().BackNavigationHandler();
+                break;
+            case "Settings":
+                appElements.GetComponent<SettingsManager>().BackNavigationHandler();
+                break;
+            default:
+                StartCoroutine(TransitionAnimationHandler("out"));
+                break;
         }
     }
 }
