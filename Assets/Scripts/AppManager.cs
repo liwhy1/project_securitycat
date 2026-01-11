@@ -56,7 +56,11 @@ public class AppManager : MonoBehaviour
 
     public void AssessmentHandler()
     {
-        gameManager.assessmentElements.SetActive(false);
+        // Disable confirm button && dropdown after confirming selection
+        gameManager.assessmentConfirmButton.gameObject.SetActive(false);
+        gameManager.assessmentDangerous.gameObject.SetActive(false);
+        gameManager.assessmentAttention.gameObject.SetActive(false);
+        gameManager.assessmentNeutral.gameObject.SetActive(false);
         switch (appTitle)
         {
             case "Messages":

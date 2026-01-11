@@ -52,22 +52,22 @@ public class GoodMailManager : MonoBehaviour
         mailAssessButton.onClick.AddListener(delegate { gameManager.AssessmentVisibilityHandler(true); });
 
         // generate mailview
-        PhotoViewHandler();
+        MailViewHandler();
     }
 
-    private void PhotoViewHandler()
+    private void MailViewHandler()
     {
         int noticeCount = 0;
         for (int i = 0; i < 8; i++)
         {
             GameObject newMail = Instantiate(mailInstance, mailInstance.transform.position, Quaternion.identity);
             newMail.name = "newMail";
-            newMail.transform.Find("Sender").GetComponent<TMP_Text>().text = "Sender #" + i;
-            newMail.transform.Find("Message").GetComponent<TMP_Text>().text = "New mail";
+            newMail.transform.Find("Sender").GetComponent<TMP_Text>().text = "Unread email #" + i;
+            newMail.transform.Find("Message").GetComponent<TMP_Text>().text = "New email";
             newMail.transform.SetParent(mailListContent.transform);
             newMail.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
             // generate openable mails
-            if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < 3) 
+            if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < gameManager.openableContent && gameManager.mailBlocks.Count > 0) 
             {
                 noticeCount++;
                 newMail.transform.Find("Notice").gameObject.SetActive(true);
@@ -91,13 +91,26 @@ public class GoodMailManager : MonoBehaviour
         newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         newContent.GetComponent<RectTransform>().sizeDelta = new Vector3(0f, 0f, 0f);
         newContent.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
-        activeMails.Add(new MailContentTemplate {mailObject = mailObject, contentObject = newContent, isAssessed = false});
 
         GameObject newMail = Instantiate(mailContentInstance, mailContentInstance.transform.position, Quaternion.identity);
         newMail.name = "newMail";
-        newMail.transform.Find("Sender").GetComponent<TMP_Text>().text = mailObject.transform.Find("Sender").GetComponent<TMP_Text>().text;
         newMail.transform.SetParent(newContent.transform);
         newMail.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+
+        // Prepare new mail
+        int randomChat = UnityEngine.Random.Range(0, gameManager.mailBlocks.Count);
+        string[] currentMailContent = gameManager.mailBlocks[randomChat].Split(";");
+        string currentTitle = currentMailContent[0].Split(":")[1];
+        string currentResult = currentMailContent[1].Split(":")[1];
+        string currentExplanation = currentMailContent[2].Split(":")[1];
+        // Set mail title
+        mailObject.transform.Find("Sender").GetComponent<TMP_Text>().text = currentTitle;
+        // Remove used mail
+        gameManager.mailBlocks.Remove(gameManager.mailBlocks[randomChat]);
+        newMail.transform.Find("Sender").GetComponent<TMP_Text>().text = currentMailContent[3].Split(":")[1];
+        newMail.transform.Find("Message").GetComponent<TMP_Text>().text = currentMailContent[4].Split(":")[1];
+        activeMails.Add(new MailContentTemplate {mailObject = mailObject, contentObject = newContent, isAssessed = false, title = currentTitle, explanation = currentExplanation, result = currentResult});
+
     }
 
     private void MailInteractionHandler(GameObject newMail)
@@ -110,10 +123,10 @@ public class GoodMailManager : MonoBehaviour
     {
         mailAssessButton.gameObject.SetActive(false);
 
-        // disable current chat TODO: is this temp?
         var activeMail = activeMails.FirstOrDefault(x => x.contentObject == mailContentView.GetComponent<ScrollRect>().content.gameObject);
         activeMail.mailObject.transform.Find("Notice").gameObject.SetActive(false);
         activeMail.isAssessed = true;
+        gameManager.AssessmentResultHandler(activeMail.result, activeMail.explanation);
         //activeMail.mailObject.GetComponent<Image>().color = new Color32(177,177,177,255);
         //activeMail.mailObject.GetComponent<Button>().interactable = false;
         
@@ -221,4 +234,7 @@ public class MailContentTemplate
     public GameObject mailObject;
     public GameObject contentObject;
     public bool isAssessed;
+    public string title;
+    public string result;
+    public string explanation;
 }

@@ -1,0 +1,278 @@
+// Content for Messages app chats
+
+:chat:
+title:Eva, Noor, Lotte, Mila;
+result:dangerous;
+explanation:This conversation contains dangerous behaviour!;
+Eva:Did anyone see the pictures from this Friday?;
+Noor:Yeah, some people can really post anything.;
+Lotte:Right? I always triple-check before posting.;
+Mila:Wait, what pictures?;
+Eva:Nothing! Just random stuff on Instagram.;
+Noor:Don’t worry about it.;
+Lotte:Everyone has their own style, I guess.;
+Mila:Okay.;
+Eva:But next time we should definitely coordinate outfits better.;
+Noor:I agree it’s way cuter when everyone’s on the same page.;
+Lotte:Yeah, like when people don’t stick out from the group.;
+Mila:Sorry if I did something wrong.;
+Eva:No, stop being dramatic.;
+Noor:Literally, nobody said your name.;
+Lotte:If the shoe fits.;
+Eva:Oh my gosh, Lotte.;
+Noor:Stop.;
+Mila:I’m going to log off for a bit.;
+Eva:Okay.;
+Noor:Okay.;
+:chat:
+
+:chat:
+title:Eva, Noor, Lotte, Mila;
+result:dangerous;
+explanation:This conversation contains dangerous behaviour!;
+Eva:are we inviting everyone to lisa’s thing;
+Noor:depends;
+Lotte:yeah last time was kinda awkward;
+Mila:awkward how?;
+Eva:nothing major;
+Noor:just when some people don’t really mix well;
+Lotte:or don’t get the jokes;
+Mila:oh;
+Eva:again not saying names;
+Noor:if it’s not about you, you don’t need to stress;
+Lotte:exactly;
+Mila:i feel like it is though;
+Eva:why do you always think everything’s about you;
+Noor:that’s a bit much;
+Lotte:we’re just being honest;
+Mila:sorry;
+Eva:see now the vibe is off;
+:chat:
+
+:chat:
+title:Sam, Nick, Tom, Leo;
+result:dangerous;
+explanation:This conversation contains dangerous behaviour!;
+Sam:why’d you shove me in the hallway;
+Nick:i didn’t shove you;
+Tom:you definitely bumped him;
+Nick:it was crowded;
+Leo:still, you don’t have to do that;
+Nick:my bad then;
+Sam:you always say that;
+Tom:yeah but it keeps happening;
+Nick:alright, what do you want me to say;
+Leo:just own it;
+Sam:not over text;
+Nick:then what;
+Tom:let’s just talk outside;
+Nick:now?;
+Sam:yeah, after class;
+Leo:near the lockers;
+:chat:
+
+:chat:
+title:Mia, Ava, Lily, Zoe;
+result:neutral;
+explanation:This conversation contains neutral behaviour!;
+Mia:did anyone bring snacks;
+Ava:i thought you were bringing them;
+Lily:i brought gum does that count;
+Zoe:absolutely not;
+Ava:harsh;
+Mia:lol it’s fine;
+Lily:vending machine run after class;
+Zoe:say less;
+Ava:hallway one or cafeteria;
+Mia:cafeteria;
+Zoe:meet there in five;
+Lily:bet;
+:chat:
+
+:chat:
+title:Emma, Riley, Jade, Chloe;
+result:needs attention;
+explanation:This conversation contains behaviour that needs attention!;
+Emma:are we all wearing the same thing tomorrow;
+Riley:i thought we said neutral;
+Jade:yeah… neutral;
+Chloe:emma your jacket is kinda loud though;
+Emma:oh;
+Riley:it’s not bad, just noticeable;
+Jade:we’re trying to keep it low-key;
+Emma:i can change it;
+Chloe:probably better;
+Emma:okay;
+Riley:we’ll look more put together that way;
+Jade:yeah trust us;
+Emma:sure;
+:chat:
+
+:chat:
+title:Harper, Ella, Brooke, Lena;
+result:needs attention;
+explanation:This conversation contains behaviour that needs attention!;
+Harper:are we still sitting together at lunch;
+Ella:we might move today;
+Brooke:yeah it’s kinda crowded;
+Lena:we need more space;
+Harper:oh okay;
+Ella:you can probably sit nearby though;
+Harper:like where;
+Brooke:maybe the end of the table;
+Lena:it’s quieter there;
+Harper:right;
+Ella:it’s not a big deal;
+Harper:yeah;
+Brooke:see you later;
+:chat:
+
+// Content for Bubbl app posts
+
+:post:
+title:Trying out for the theater club;
+result:dangerous;
+explanation:This post's comments section contain dangerous content!;
+Bober:We don’t need more ugly people there.;
+Jeremy67:Trust me, your not welcome.;
+Beanie:Can’t wait to see you perform.;
+Chloe:Why are you posting this?;
+Stacy:You go girl!;
+:post:
+
+:post:
+title:Started going to the gym. \nTime to get some gainzzz #HealthyLifestyle;
+result:needs attention;
+explanation:This post's comments section contain content that needs attention!;
+Tyler:Nice! See you there!;
+Ben:Bro’s built like a noodle.;
+Jean:Everyone has their start!;
+Dean:Congrats!;
+Jerry:uhh, why?;
+:post:
+
+:post:
+title:Dyed my hair myself last night.
+\nFelt cute, might delete later.;
+result:needs attention;
+explanation:This post's comments section contains content that needs attention!;
+Jenny:WOW!;
+Christine:Maybe a different color would have been better.;
+Leha:Are you sure this fits you?;
+Patricia:Yaaasss;
+Grace:I think the color choice is... A choice.;
+:post:
+
+:post:
+title:Tried posting my art for the first time.\n#Artist;
+result:neutral;
+explanation:This post's comments section contains neutral content!;
+Tommy54:Great work!;
+Jimmy61:Upcoming artist right here!;
+Chloe:Line work is a bit rigid but still really good;
+Joey:Nice!;
+Phenelopy:Crazy good!;
+:post:
+
+:post:
+title:Posting that I scored a goal in football;
+result:dangerous;
+explanation:This post's comments section contains dangerous content!;
+Jake:At least get better shoes.;
+Lily:You are not good;
+Ben:you think this is post worthy?;
+Sofia:Damn you are bad;
+Max:Cringe;
+:post:
+
+:post:
+title:Posting that I joined the school chess club;
+result:dangerous;
+explanation:This post's comments section contain dangerous content!;
+Tyler_14:Lmao who even plays chess these days?;
+Mia_09:Nerd;
+JakeXD:Why would you play this? You're dumb XD;
+Sofia_12:This is definetly not for you;
+Avery:I think you are more suited for checkers;
+:post:
+
+// Content for GoodMail app mails
+
+:mail:
+title:Hope to hear from you';
+result:dangerous;
+explanation:This email contains dangerous content!;
+sender:Mrs. Hilary;
+content:My name is Mrs. Hilary from South Africa. \nA cancer patient, married to the late Dr Hilary who was a very successful businessman. \nI am willing to donate a high sum of money to you for charity works in Your Country. Please kindly get back to me for more details if you are interested in handling this offer.
+\n\nBest regards,
+\nMrs. Joyce;
+:mail:
+
+:mail:
+title:bubbl automated notification;
+result:dangerous;
+explanation:This email contains dangerous content!;
+sender:bubbl Security System;
+content:Dear John,
+\nThis is an automated notification from the bubbl Security System. Your account has been flagged for inactivity. To maintain account security and data integrity, inactive accounts are scheduled for automatic deletion after a specified period.
+\nImmediate Action Needed,
+\nLogin to prevent your account from being deactivated and deleted using the link below.
+If you've forgotten your password, follow the prompts after entering your domain at the login screen 
+ This is an automated message. Please do not reply.
+\nClick this link to stop it from happening, www.bubblSaveAccount.com/reactivate
+\n
+\nThank you,
+\nbubbl Security Team;
+:mail:
+
+:mail:
+title:bubbl password reset;
+result:dangerous;
+explanation:This email contains dangerous content!;
+sender:bubbl save system;
+content:Hi John,
+\nWe got a request to reset your bubbl password.
+\nIf you didn't request a password reset, immediately click on this link!
+\nwww.bubblSaveAccount.com/changePassword;
+:mail:
+
+:mail:
+title:Zaptronix Pro;
+result:dangerous;
+explanation:This email contains dangerous content!;
+sender:The Zaptronix Team;
+content:Hi,
+\nWe’re excited to introduce Zaptronix Pro, designed to make your daily tasks faster, simpler, and more efficient. With smart automation and real-time tracking, you’ll save hours every week!
+\nTry it today and experience the difference, https//www.zaptronixpro/getproduct/pro
+\n\nBest regards,
+\nThe Zaptronix Team;
+:mail:
+
+:mail:
+title:Suspicious account activity;
+result:dangerous;
+explanation:This email contains dangerous content!;
+sender:Bubbl support team;
+content:Hello Dear Bubbl user,
+\nThis is Mr. Kevin pennington, Bubbl support for account protection 
+\nWe are experiencing a very serious problem with your account due to,
+\nUntrusted login from South America
+\nTo fix this immediately, please reply with your reset code.
+\nIMPORTANT
+\nDo NOT ignore this email or your account will be, Deleted
+\nIf you do not have a reset code, check spam in your email.
+\n\nThank you for your urgent cooperation.
+\nRespectfully Bubbl support team.;
+:mail:
+
+:mail:
+title:Test email from Riley;
+result:neutral;
+explanation:This email contains neutral content!;
+sender:Riley;
+content:Hey Jordan,
+\nNot much going on — just wanted to see if this email actually goes through. Nothing you need to do, just a random test from me.
+\nHope your day’s going well!
+\n\nCatch you later,
+\nRiley;
+:mail:

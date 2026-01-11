@@ -30,7 +30,7 @@ public class MessagesManager : MonoBehaviour
     [SerializeField] private Button profileButton;
     [SerializeField] private Button messageBackButton;
     [SerializeField] private Button messageAssessButton;
-    [SerializeField] private List<ChatContentTemplate> activeChats = new List<ChatContentTemplate>(); // chat:content
+    [SerializeField] private List<ChatContentTemplate> activeChats = new List<ChatContentTemplate>(); // chat:content:isassesed:result:explanation
 
     private void Start()
     {
@@ -59,12 +59,11 @@ public class MessagesManager : MonoBehaviour
         {
             GameObject newChat = Instantiate(chatInstance, chatInstance.transform.position, Quaternion.identity);
             newChat.name = "newChat";
-            newChat.transform.Find("Sender").GetComponent<TMP_Text>().text = "Sender #" + i;
-            newChat.transform.Find("Message").GetComponent<TMP_Text>().text = "New message";
+            newChat.transform.Find("Sender").GetComponent<TMP_Text>().text = "Group #" + i;
             newChat.transform.SetParent(chatContent.transform);
             newChat.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
             // generate openable chats
-            if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < 3) 
+            if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < gameManager.openableContent && gameManager.chatBlocks.Count > 0) 
             {
                 noticeCount++;
                 newChat.transform.Find("Notice").gameObject.SetActive(true);
@@ -94,30 +93,49 @@ public class MessagesManager : MonoBehaviour
         newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         newContent.GetComponent<RectTransform>().sizeDelta = new Vector3(0f, 0f, 0f);
         newContent.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
-        activeChats.Add(new ChatContentTemplate {chatObject = chatObject, contentObject = newContent, isAssessed = false});
-        //string[] currentChatContent = gameManager.chatBlocks[2].Split(";");
-        //for (int i = 0; i < currentChatContent.Length-1; i++)
-        for (int i = 0; i < 14; i++)
+        // Prepare new chat
+        int randomChat = UnityEngine.Random.Range(0, gameManager.chatBlocks.Count);
+        string[] currentChatContent = gameManager.chatBlocks[randomChat].Split(";");
+        string currentTitle = currentChatContent[0].Split(":")[1];
+        string currentResult = currentChatContent[1].Split(":")[1];
+        string currentExplanation = currentChatContent[2].Split(":")[1];
+        // Set chat title
+        chatObject.transform.Find("Sender").GetComponent<TMP_Text>().text = currentTitle;
+        // Remove used chat
+        gameManager.chatBlocks.Remove(gameManager.chatBlocks[randomChat]);
+        // Generate messages from new chat
+        for (int i = 3; i < currentChatContent.Length-1; i++)
+        {
+            GameObject newMessage = Instantiate(messageInstance, messageInstance.transform.position, Quaternion.identity);
+            newMessage.name = "newMessage";
+            newMessage.transform.Find("TextHolder").Find("Sender").GetComponent<TMP_Text>().text = currentChatContent[i].Split(":")[0];
+            newMessage.transform.Find("TextHolder").Find("Message").GetComponent<TMP_Text>().text = currentChatContent[i].Split(":")[1];
+            newMessage.transform.SetParent(newContent.transform);
+            newMessage.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+        }
+        /*for (int i = 0; i < 14; i++)
         {
             GameObject newMessage = Instantiate(messageInstance, messageInstance.transform.position, Quaternion.identity);
             newMessage.name = "newChat";
             newMessage.transform.Find("Sender").GetComponent<TMP_Text>().text = chatObject.transform.Find("Sender").GetComponent<TMP_Text>().text;
             newMessage.transform.Find("Message").GetComponent<TMP_Text>().text = "New message";
-            //newMessage.transform.Find("Sender").GetComponent<TMP_Text>().text = currentChatContent[i].Split(":")[0];
-            //newMessage.transform.Find("Message").GetComponent<TMP_Text>().text = currentChatContent[i].Split(":")[1];
             newMessage.transform.SetParent(newContent.transform);
             newMessage.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
-        }
+        }*/
+
+        // Store new chat
+        activeChats.Add(new ChatContentTemplate {chatObject = chatObject, contentObject = newContent, isAssessed = false, title = currentTitle, result = currentResult, explanation = currentExplanation});
     }
 
     public void AssessmentHandler()
     {
         messageAssessButton.gameObject.SetActive(false);
 
-        // disable current chat TODO: is this temp?
         var activeChat = activeChats.FirstOrDefault(x => x.contentObject == messageView.GetComponent<ScrollRect>().content.gameObject);
         activeChat.chatObject.transform.Find("Notice").gameObject.SetActive(false);
         activeChat.isAssessed = true;
+        gameManager.AssessmentResultHandler(activeChat.result, activeChat.explanation);
+
         //activeChat.chatObject.GetComponent<Image>().color = new Color32(177,177,177,255);
         //activeChat.chatObject.GetComponent<Button>().interactable = false;
         
@@ -155,7 +173,7 @@ public class MessagesManager : MonoBehaviour
             messageView.SetActive(true);
 
             // handle target page before transition
-            if (currentTargetChat == null) { Debug.Log("Well shit."); yield return null;}
+            if (currentTargetChat == null) yield return null;
             activeChats.ForEach(x => x.contentObject.SetActive(false));
             var targetChat = activeChats.FirstOrDefault(x => x.chatObject == currentTargetChat);
             messageView.GetComponent<ScrollRect>().content = targetChat.contentObject.GetComponent<RectTransform>();
@@ -226,4 +244,7 @@ public class ChatContentTemplate
     public GameObject chatObject;
     public GameObject contentObject;
     public bool isAssessed;
+    public string title;
+    public string result;
+    public string explanation;
 }

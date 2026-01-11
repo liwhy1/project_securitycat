@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 public class GameManager : MonoBehaviour
 {
@@ -18,8 +19,16 @@ public class GameManager : MonoBehaviour
     [Header("Reference Data")]
     public Transform canvasObject;
     public Transform canvasLimiterObject;
+    public Transform startAnimationBlocker;
+    public Transform startAnimationIcon;
     public Transform persistentObject;
-    public TextAsset messagesChats;
+    public TextAsset appContents;
+    public TextAsset appContentsDU;
+    public TextAsset currentAppContents;
+    [SerializeField] private Sprite mascotType1;
+    [SerializeField] private Sprite mascotType2;
+    [SerializeField] private Sprite mascotType3;
+    [SerializeField] private Sprite mascotType4;
 
     [Header("Local Data")]
     public float animationSpeed;
@@ -30,10 +39,24 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text statusBarTime;
     public GameObject assessmentElements;
     [SerializeField] private Button assessmentReturnButton;
-    [SerializeField] private Button assessmentConfirmButton;
+    public Button assessmentConfirmButton;
+    public Button assessmentDangerous;
+    public Button assessmentAttention;
+    public Button assessmentNeutral;
+    [SerializeField] private TMP_Text assessmentTitle;
+    [SerializeField] private TMP_Text assessmentExplanation;
+    [SerializeField] private string assessmentCurrentSelection;
     public List<AppListTemplate> appArrayList = new List<AppListTemplate>();
     public List<GameObject> appList;
     public List<string> chatBlocks;
+    public List<string> postBlocks;
+    public List<string> mailBlocks;
+    [SerializeField] private int assessmentCorrect;
+    [SerializeField] private int assessmentIncorrect;
+    [SerializeField] private bool playStartAnimation;
+    public string selectedLocalization;
+    [SerializeField] private GameObject backgroundMascot;
+    public int openableContent;
 
     private void OnEnable() => inputManager.Enable();
     private void OnDisable() => inputManager.Disable();
@@ -52,29 +75,87 @@ public class GameManager : MonoBehaviour
         screenWidth = canvasObject.GetComponent<RectTransform>().rect.width;
         canvasLimiterObject.GetComponent<Mask>().enabled = true;
         gridInstance.SetActive(false);
+        selectedLocalization = "en";
         AssessmentVisibilityHandler(false);
         StartCoroutine(StatusBarUpdateHandler());
         StartCoroutine(ScreenWidthUpdateHandler());
+
+        // apply localization
+        LocalizationHandler();
+
+        // parse content file
         AppContentParseHandler();
 
         // setup buttons
         assessmentReturnButton.onClick.AddListener(delegate { AssessmentVisibilityHandler(false); });
         assessmentConfirmButton.onClick.AddListener(delegate { activeApp.GetComponent<AppManager>().AssessmentHandler(); });
+        assessmentDangerous.onClick.AddListener(delegate { AssessmentButtonHandler("dangerous"); });
+        assessmentAttention.onClick.AddListener(delegate { AssessmentButtonHandler("needs attention"); });
+        assessmentNeutral.onClick.AddListener(delegate { AssessmentButtonHandler("neutral"); });
+
+        // start animation
+        StartCoroutine(StartAnimationHandler());
+    }
+
+    public void LocalizationHandler()
+    {
+        if (selectedLocalization == "en")
+        {
+            currentAppContents = appContents;
+            assessmentConfirmButton.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Confirm";
+            assessmentReturnButton.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Return";
+        }
+        else
+        {
+            // TODO: finish localization data
+            currentAppContents = appContentsDU;
+            assessmentConfirmButton.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Confirm";
+            assessmentReturnButton.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Return";
+        }
+    }
+
+    private void ScoreHandler(string scoreType)
+    {
+        if (scoreType == "correct")
+        {
+            assessmentCorrect++;
+        }
+        else
+        {
+            assessmentIncorrect++;
+        }
+        if (assessmentCorrect-assessmentIncorrect < 0)
+        {
+            backgroundMascot.GetComponent<Image>().sprite = mascotType2;
+        }
+        else if (assessmentCorrect-assessmentIncorrect < -2)
+        {
+            backgroundMascot.GetComponent<Image>().sprite = mascotType3;
+        }
+        else if (assessmentCorrect-assessmentIncorrect < -4)
+        {
+            backgroundMascot.GetComponent<Image>().sprite = mascotType4;
+        }
+        else
+        {
+            backgroundMascot.GetComponent<Image>().sprite = mascotType1;
+        }
     }
 
     private void AppContentParseHandler()
     {
-        // chat messages
         string cleanLines = "";
-        foreach (var rawLine in messagesChats.text.Split("\n"))
+        // sanitize input
+        foreach (var rawLine in currentAppContents.text.Split("\n"))
         {
             var line = rawLine.Trim();
-
             if (string.IsNullOrEmpty(line) || line.StartsWith("//")) continue;
             cleanLines += line;
-
         }
-        chatBlocks = cleanLines.Split(new[] { ":chat:" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        // divide content
+        chatBlocks = Regex.Matches(cleanLines, @":chat:(.*?):chat:").Select(m => m.Groups[1].Value).ToList();
+        postBlocks = Regex.Matches(cleanLines, @":post:(.*?):post:").Select(m => m.Groups[1].Value).ToList();
+        mailBlocks = Regex.Matches(cleanLines, @":mail:(.*?):mail:").Select(m => m.Groups[1].Value).ToList();
     }
 
     private IEnumerator StatusBarUpdateHandler()
@@ -94,7 +175,7 @@ public class GameManager : MonoBehaviour
         {
             if (screenWidth != canvasObject.GetComponent<RectTransform>().rect.width)
             {
-                Debug.Log("Reevaluating screen size! " + screenWidth + "->" + canvasObject.GetComponent<RectTransform>().rect.width);
+                Debug.Log("Re-evaluating screen size! " + screenWidth + "->" + canvasObject.GetComponent<RectTransform>().rect.width);
                 screenWidth = canvasObject.GetComponent<RectTransform>().rect.width;
                 var size = canvasLimiterObject.GetComponent<RectTransform>().sizeDelta;
                 size.x = screenWidth > 1500f ? 1500f : canvasObject.GetComponent<RectTransform>().rect.width;
@@ -111,21 +192,75 @@ public class GameManager : MonoBehaviour
         if (assessmentActivity)
         {
             assessmentElements.SetActive(true);
+            assessmentConfirmButton.gameObject.SetActive(true);
+            assessmentReturnButton.gameObject.SetActive(true);
+            // reset assessment buttons
+            assessmentDangerous.gameObject.SetActive(true);
+            assessmentDangerous.gameObject.GetComponent<Image>().enabled = false;
+            assessmentAttention.gameObject.SetActive(true);
+            assessmentAttention.gameObject.GetComponent<Image>().enabled = false;
+            assessmentNeutral.gameObject.SetActive(true);
+            assessmentNeutral.gameObject.GetComponent<Image>().enabled = true;
+            assessmentCurrentSelection = "neutral";
             assessmentElements.transform.SetParent(activeApp.GetComponent<AppManager>().appElements.transform);
         }
         else
         {
             assessmentElements.SetActive(false);
+            assessmentExplanation.gameObject.SetActive(false);
             assessmentElements.transform.SetParent(canvasLimiterObject);
             assessmentElements.transform.SetSiblingIndex(persistentObject.GetSiblingIndex() - 1);
         }
         if (activeApp != null)
         {
             string contentType = activeApp.name.Contains("Messages") ? "chat" : activeApp.name.Contains("GoodMail") ? "mail" : activeApp.name.Contains("Bubbl") ? "post" : "current";
-            assessmentElements.transform.Find("Title").GetComponent<TMP_Text>().text = "Assess results from " + contentType +" content!";
+            assessmentTitle.text = "Assess results from " + contentType + " content!";
         }
         assessmentElements.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -155.5f, 0f);
         assessmentElements.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+    }
+
+    public void AssessmentButtonHandler(string targetState)
+    {
+        assessmentDangerous.gameObject.GetComponent<Image>().enabled = false;
+        assessmentAttention.gameObject.GetComponent<Image>().enabled = false;
+        assessmentNeutral.gameObject.GetComponent<Image>().enabled = false;
+        assessmentCurrentSelection = targetState;
+
+        switch (targetState)
+        {
+            case "dangerous":
+                assessmentDangerous.gameObject.GetComponent<Image>().enabled = true;
+            break;
+            case "needs attention":
+                assessmentAttention.gameObject.GetComponent<Image>().enabled = true;
+            break;
+            case "neutral":
+                assessmentNeutral.gameObject.GetComponent<Image>().enabled = true;
+            break;
+        }
+    }
+
+    public void AssessmentResultHandler(string userAnswer, string answerExplanation)
+    {
+        bool assessmentCorrectResult = false;
+        try
+        {
+            assessmentCorrectResult = assessmentCurrentSelection.ToLower() == userAnswer.ToLower();
+        }
+        catch {}
+        if (!assessmentCorrectResult)
+        {
+            assessmentTitle.text = "Incorrect answer!";
+            assessmentExplanation.gameObject.SetActive(true);
+            assessmentExplanation.text = answerExplanation;
+            ScoreHandler("incorrect");
+        }
+        else
+        {
+            assessmentTitle.text = "Correct answer!";
+            ScoreHandler("correct");
+        }
     }
 
     public void AppInitializationHandler()
@@ -164,6 +299,57 @@ public class GameManager : MonoBehaviour
         }
         Debug.Log("HomeGrid generated!");
         AppInitializationHandler();
+    }
+
+    private IEnumerator StartAnimationHandler()
+    {
+        if (!playStartAnimation)
+        {
+            Destroy(startAnimationBlocker.gameObject);
+            Destroy(startAnimationIcon.gameObject);
+            yield break;
+        }
+        startAnimationBlocker.gameObject.SetActive(true);
+        startAnimationIcon.gameObject.SetActive(true);
+        canvasLimiterObject.SetParent(startAnimationBlocker);
+        startAnimationIcon.SetParent(canvasObject);
+        startAnimationIcon.GetComponent<Image>().color = new Color32(255, 255, 255, 0);
+        yield return new WaitForSeconds(.7f);
+
+        // animate icon
+        float currentAlpha;
+        float animSpeed = .95f;
+        float time = 0f;
+        while (time < animSpeed)
+        {
+            time += Time.deltaTime;
+            currentAlpha = Mathf.Lerp(0f, 255f, time / animSpeed);
+            startAnimationIcon.GetComponent<Image>().color = new Color32(255, 255, 255, Convert.ToByte(currentAlpha));
+            yield return null;
+        }
+        startAnimationIcon.GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+        
+        yield return new WaitForSeconds(.35f);
+        var savedSize = canvasLimiterObject.GetComponent<RectTransform>().sizeDelta;
+        startAnimationBlocker.GetComponent<RectTransform>().sizeDelta = new Vector3(0f, 0f, 0f);
+        
+        // animate mask
+        var savedSizeParented = startAnimationBlocker.GetComponent<RectTransform>().sizeDelta;
+        Vector2 targetSize = new Vector2(3000f, 3000f);
+        time = 0f;
+        animSpeed = .65f;
+        while (time < animSpeed)
+        {
+            time += Time.deltaTime;
+            startAnimationBlocker.GetComponent<RectTransform>().sizeDelta = Vector3.Lerp(savedSizeParented, targetSize, time / animSpeed);
+            yield return null;
+        }
+        startAnimationBlocker.GetComponent<RectTransform>().localPosition = targetSize;
+        canvasLimiterObject.SetParent(canvasObject);
+        canvasLimiterObject.GetComponent<RectTransform>().sizeDelta = savedSize;
+        canvasLimiterObject.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 1f);
+        Destroy(startAnimationBlocker.gameObject);
+        Destroy(startAnimationIcon.gameObject);
     }
 
     public void NavigationInteractionHandler(GameObject navigatorObject)

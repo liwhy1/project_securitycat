@@ -36,7 +36,7 @@ public class BubblManager : MonoBehaviour
     {
         // setup vars
         currentState = postView;
-        postView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 40f, 0f);
+        postView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, 30f, 0f);
         commentsView.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -1904f, 0f);
         profileView.GetComponent<RectTransform>().transform.localPosition = new Vector3(postView.GetComponent<RectTransform>().rect.width, 40f, 0f);
         postView.SetActive(true);
@@ -64,11 +64,11 @@ public class BubblManager : MonoBehaviour
             newPost.name = "newPost";
             newPost.transform.SetParent(postContent.transform);
             newPost.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
-            newPost.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = "User #" + i;
+            newPost.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = "New post #" + i;
             int r = UnityEngine.Random.Range(1,5);
             newPost.transform.Find("Info").gameObject.GetComponent<TMP_Text>().text = "Posted: " + r + (r > 1 ? " days ago." : " day ago.");
             // generate openable posts
-            if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < 3) 
+            if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < gameManager.openableContent && gameManager.postBlocks.Count > 0) 
             {
                 noticeCount++;
                 newPost.transform.Find("Notice").gameObject.SetActive(true);
@@ -92,8 +92,27 @@ public class BubblManager : MonoBehaviour
         newContent.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         newContent.GetComponent<RectTransform>().sizeDelta = new Vector3(0f, 0f, 0f);
         newContent.GetComponent<RectTransform>().localPosition = new Vector3(0f, 0f, 0f);
-        activePosts.Add(new PostContentTemplate {postObject = postObject, contentObject = newContent, isAssessed = false});
-        for (int i = 0; i < 10; i++)
+        // Prepare new post
+        int randomPost = UnityEngine.Random.Range(0, gameManager.postBlocks.Count);
+        string[] currentPostContent = gameManager.postBlocks[randomPost].Split(";");
+        string currentTitle = currentPostContent[0].Split(":")[1];
+        string currentResult = currentPostContent[1].Split(":")[1];
+        string currentExplanation = currentPostContent[2].Split(":")[1];
+        // Set title
+        postObject.transform.Find("User").GetComponent<TMP_Text>().text = currentTitle;
+        // Remove used chat
+        gameManager.postBlocks.Remove(gameManager.postBlocks[randomPost]);
+        // Generate messages from new chat
+        for (int i = 3; i < currentPostContent.Length-1; i++)
+        {
+            GameObject newMessage = Instantiate(messageInstance, messageInstance.transform.position, Quaternion.identity);
+            newMessage.name = "newPost";
+            newMessage.transform.Find("TextHolder").Find("Sender").GetComponent<TMP_Text>().text = currentPostContent[i].Split(":")[0];
+            newMessage.transform.Find("TextHolder").Find("Message").GetComponent<TMP_Text>().text = currentPostContent[i].Split(":")[1];
+            newMessage.transform.SetParent(newContent.transform);
+            newMessage.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+        }
+        /*for (int i = 0; i < 10; i++)
         {
             GameObject newMessage = Instantiate(messageInstance, messageInstance.transform.position, Quaternion.identity);
             newMessage.name = "newChat";
@@ -101,7 +120,8 @@ public class BubblManager : MonoBehaviour
             newMessage.transform.Find("Message").GetComponent<TMP_Text>().text = "New message";
             newMessage.transform.SetParent(newContent.transform);
             newMessage.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
-        }
+        }*/
+        activePosts.Add(new PostContentTemplate {postObject = postObject, contentObject = newContent, isAssessed = false, result = currentResult, explanation = currentExplanation});
     }
 
     private void PostInteractionHandler(GameObject newPost)
@@ -114,11 +134,11 @@ public class BubblManager : MonoBehaviour
     {
         postAssessButton.gameObject.SetActive(false);
 
-
-        // disable current post TODO: is this temp?
         var activePost = activePosts.FirstOrDefault(x => x.contentObject == commentsView.GetComponent<ScrollRect>().content.gameObject);
         activePost.postObject.transform.Find("Notice").gameObject.SetActive(false);
         activePost.isAssessed = true;
+        gameManager.AssessmentResultHandler(activePost.result, activePost.explanation);
+
         //activePost.postObject.GetComponent<Image>().color = new Color32(177,177,177,255);
         //activePost.postObject.GetComponent<Button>().interactable = false;
         
@@ -229,4 +249,7 @@ public class PostContentTemplate
     public GameObject postObject;
     public GameObject contentObject;
     public bool isAssessed;
+    public string title;
+    public string result;
+    public string explanation;
 }
