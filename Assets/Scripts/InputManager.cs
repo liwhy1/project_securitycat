@@ -109,6 +109,15 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""PointerDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""dab34b35-0a6b-487c-a815-5edebbf46d71"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -131,6 +140,17 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""PointerPosition"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5cd8ef9b-4381-46c5-a618-abd90caaa9ff"",
+                    ""path"": ""<Pointer>/press"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PointerDown"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -204,6 +224,7 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Reset = m_Player.FindAction("Reset", throwIfNotFound: true);
         m_Player_PointerPosition = m_Player.FindAction("PointerPosition", throwIfNotFound: true);
+        m_Player_PointerDown = m_Player.FindAction("PointerDown", throwIfNotFound: true);
     }
 
     ~@InputManager()
@@ -286,6 +307,7 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Reset;
     private readonly InputAction m_Player_PointerPosition;
+    private readonly InputAction m_Player_PointerDown;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -305,6 +327,10 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/PointerPosition".
         /// </summary>
         public InputAction @PointerPosition => m_Wrapper.m_Player_PointerPosition;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PointerDown".
+        /// </summary>
+        public InputAction @PointerDown => m_Wrapper.m_Player_PointerDown;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -337,6 +363,9 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
             @PointerPosition.started += instance.OnPointerPosition;
             @PointerPosition.performed += instance.OnPointerPosition;
             @PointerPosition.canceled += instance.OnPointerPosition;
+            @PointerDown.started += instance.OnPointerDown;
+            @PointerDown.performed += instance.OnPointerDown;
+            @PointerDown.canceled += instance.OnPointerDown;
         }
 
         /// <summary>
@@ -354,6 +383,9 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
             @PointerPosition.started -= instance.OnPointerPosition;
             @PointerPosition.performed -= instance.OnPointerPosition;
             @PointerPosition.canceled -= instance.OnPointerPosition;
+            @PointerDown.started -= instance.OnPointerDown;
+            @PointerDown.performed -= instance.OnPointerDown;
+            @PointerDown.canceled -= instance.OnPointerDown;
         }
 
         /// <summary>
@@ -473,5 +505,12 @@ public partial class @InputManager: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPointerPosition(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PointerDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPointerDown(InputAction.CallbackContext context);
     }
 }

@@ -23,6 +23,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "PointerDown",
+                    "type": "Button",
+                    "id": "dab34b35-0a6b-487c-a815-5edebbf46d71",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -45,6 +54,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "PointerPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5cd8ef9b-4381-46c5-a618-abd90caaa9ff",
+                    "path": "<Pointer>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PointerDown",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

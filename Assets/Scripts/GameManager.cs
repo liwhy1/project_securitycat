@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     private InputManager inputManager;
     private InputAction resetAction;
     public InputAction pointerAction;
+    public InputAction pointerDownAction;
 
     [Header("Reference Data")]
     public Transform canvasObject;
@@ -29,6 +30,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Sprite mascotType2;
     [SerializeField] private Sprite mascotType3;
     [SerializeField] private Sprite mascotType4;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip bubblSound;
+    [SerializeField] private AudioClip emailSound;
+    [SerializeField] private AudioClip messagesSound;
+    [SerializeField] private AudioClip correctSound;
+    [SerializeField] private AudioClip incorrectSound;
+    [SerializeField] private AudioClip tapSound;
 
     [Header("Local Data")]
     public float animationSpeed;
@@ -68,7 +76,9 @@ public class GameManager : MonoBehaviour
         inputManager = new InputManager();
         resetAction = inputManager.Player.Reset;   
         resetAction.performed += ResetHandler;
-        pointerAction = inputManager.Player.PointerPosition;   
+        pointerAction = inputManager.Player.PointerPosition;
+        pointerDownAction = inputManager.Player.PointerDown;
+        pointerDownAction.performed += PointerDownHandler;
         
         // setup vars
         animationSpeed = .25f;
@@ -114,27 +124,57 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void PointerDownHandler(InputAction.CallbackContext context) => AudioHandler("tap");
+
+    public void AudioHandler(string audioAction)
+    {
+        audioSource.Stop();
+        switch (audioAction)
+        {
+            case "bubbl":
+                audioSource.PlayOneShot(bubblSound);
+            break;
+            case "email":
+                audioSource.PlayOneShot(emailSound);
+            break;
+            case "messages":
+                audioSource.PlayOneShot(messagesSound);
+            break;
+            case "correct":
+                audioSource.PlayOneShot(correctSound);
+            break;
+            case "incorrect":
+                audioSource.PlayOneShot(incorrectSound);
+            break;
+            case "tap":
+                audioSource.PlayOneShot(tapSound);
+            break;
+        }
+    }
+
     private void ScoreHandler(string scoreType)
     {
         if (scoreType == "correct")
         {
             assessmentCorrect++;
+            AudioHandler("correct");
         }
         else
         {
             assessmentIncorrect++;
+            AudioHandler("incorrect");
         }
-        if (assessmentCorrect-assessmentIncorrect < 0)
+        if (assessmentCorrect-assessmentIncorrect < -4)
         {
-            backgroundMascot.GetComponent<Image>().sprite = mascotType2;
+            backgroundMascot.GetComponent<Image>().sprite = mascotType4;
         }
         else if (assessmentCorrect-assessmentIncorrect < -2)
         {
-            backgroundMascot.GetComponent<Image>().sprite = mascotType3;
+            backgroundMascot.GetComponent<Image>().sprite = mascotType2;
         }
-        else if (assessmentCorrect-assessmentIncorrect < -4)
+        else if (assessmentCorrect-assessmentIncorrect < 0)
         {
-            backgroundMascot.GetComponent<Image>().sprite = mascotType4;
+            backgroundMascot.GetComponent<Image>().sprite = mascotType3;
         }
         else
         {

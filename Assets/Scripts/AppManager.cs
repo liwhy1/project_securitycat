@@ -78,6 +78,18 @@ public class AppManager : MonoBehaviour
     public IEnumerator AppInteractionHandler(bool isExternal)
     {
         float time = 0f;
+        switch (appTitle)
+        {
+            case "Messages":
+                gameManager.AudioHandler("messages");
+                break;
+            case "GoodMail":
+                gameManager.AudioHandler("email");
+                break;
+            case "Bubbl":
+                gameManager.AudioHandler("bubbl");
+            break;
+        }
         while (isPointerDown)
         {
             // long press limit reached, follow mouse
