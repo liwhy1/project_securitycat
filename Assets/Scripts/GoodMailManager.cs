@@ -32,6 +32,8 @@ public class GoodMailManager : MonoBehaviour
     [SerializeField] private Button mailAssessButton;
     [SerializeField] private List<MailContentTemplate> activeMails = new List<MailContentTemplate>(); // mail:content
 
+
+    // NOTICE: This specific gameobject seems to run it's start method before its manager can disable it, make sure the gameobject is disable in the editor
     private void Start()
     {
         // setup vars
@@ -53,6 +55,9 @@ public class GoodMailManager : MonoBehaviour
 
         // generate mailview
         MailViewHandler();
+
+        // apply language preferences
+        LanguageHandler();
     }
 
     private void MailViewHandler()
@@ -62,8 +67,17 @@ public class GoodMailManager : MonoBehaviour
         {
             GameObject newMail = Instantiate(mailInstance, mailInstance.transform.position, Quaternion.identity);
             newMail.name = "newMail";
-            newMail.transform.Find("Sender").GetComponent<TMP_Text>().text = "Unread email #" + i;
-            newMail.transform.Find("Message").GetComponent<TMP_Text>().text = "New email";
+            if (gameManager.selectedLocalization == "en")
+            {
+                newMail.transform.Find("Sender").GetComponent<TMP_Text>().text = "Unread email #" + i;
+                newMail.transform.Find("Message").GetComponent<TMP_Text>().text = "New email";
+            }
+            else
+            {
+                newMail.transform.Find("Sender").GetComponent<TMP_Text>().text = "Ongelezen email #" + i;
+                newMail.transform.Find("Message").GetComponent<TMP_Text>().text = "Nieuw email";
+            }
+
             newMail.transform.SetParent(mailListContent.transform);
             newMail.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
             // generate openable mails
@@ -134,6 +148,23 @@ public class GoodMailManager : MonoBehaviour
         //StartCoroutine(PageTransitionHandler(mailListView));
     }
 
+    public void LanguageHandler()
+    {
+        profileView.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = gameManager.generatedUsername;
+        if (gameManager.selectedLocalization == "en")
+        {
+            profileView.transform.Find("Title").gameObject.GetComponent<TMP_Text>().text = "Profile";
+            profileView.transform.Find("ContactsText").gameObject.GetComponent<TMP_Text>().text = "Contacts";
+            profileView.transform.Find("JoinedText").gameObject.GetComponent<TMP_Text>().text = "Joined";
+        }
+        else
+        {
+            profileView.transform.Find("Title").gameObject.GetComponent<TMP_Text>().text = "Profiel";
+            profileView.transform.Find("ContactsText").gameObject.GetComponent<TMP_Text>().text = "Contacten";
+            profileView.transform.Find("JoinedText").gameObject.GetComponent<TMP_Text>().text = "Toegetreden";
+        }
+    }
+
     private IEnumerator PageTransitionHandler(GameObject targetPage)
     {
         // don't try to transition to the same page
@@ -164,7 +195,6 @@ public class GoodMailManager : MonoBehaviour
             mailContentView.SetActive(true);
 
             // handle target page before transition
-            if (currentTargetMail == null) { Debug.Log("Well shit."); yield return null;}
             activeMails.ForEach(x => x.contentObject.SetActive(false));
             var targetMail = activeMails.FirstOrDefault(x => x.mailObject == currentTargetMail);
             mailContentView.GetComponent<ScrollRect>().content = targetMail.contentObject.GetComponent<RectTransform>();

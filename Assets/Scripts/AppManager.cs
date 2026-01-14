@@ -220,6 +220,7 @@ public class AppManager : MonoBehaviour
                 break;
             case "Settings":
                 targetView = appElements.GetComponent<SettingsManager>().settingsView;
+                appElements.GetComponent<SettingsManager>().AppRefreshHandler();
                 break;
         }
 

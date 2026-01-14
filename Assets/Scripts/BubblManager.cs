@@ -13,6 +13,13 @@ public class BubblManager : MonoBehaviour
     [SerializeField] private AppManager appManager;
     [SerializeField] private GameObject messageInstance;
     [SerializeField] private GameObject postInstance;
+    [SerializeField] private Sprite artPost;
+    [SerializeField] private Sprite chessPost;
+    [SerializeField] private Sprite hairPost;
+    [SerializeField] private Sprite footballPost;
+    [SerializeField] private Sprite gymPost;
+    [SerializeField] private Sprite theaterPost;
+    [SerializeField] private Sprite messageIcon;
 
     [Header("Local Data")]
     [SerializeField] private GameObject currentState;
@@ -53,6 +60,9 @@ public class BubblManager : MonoBehaviour
 
         // generate postsview
         PostViewHandler();
+
+        // apply language preference
+        LanguageHandler();
     }
 
     private void PostViewHandler()
@@ -64,9 +74,18 @@ public class BubblManager : MonoBehaviour
             newPost.name = "newPost";
             newPost.transform.SetParent(postContent.transform);
             newPost.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
-            newPost.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = "New post #" + i;
             int r = UnityEngine.Random.Range(1,5);
-            newPost.transform.Find("Info").gameObject.GetComponent<TMP_Text>().text = "Posted: " + r + (r > 1 ? " days ago." : " day ago.");
+            if (gameManager.selectedLocalization == "en")
+            {
+                newPost.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = "New post #" + i;
+                newPost.transform.Find("Info").gameObject.GetComponent<TMP_Text>().text = "Posted: " + r + (r > 1 ? " days ago." : " day ago.");
+            }
+            else
+            {
+                newPost.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = "Nieuw bericht #" + i;
+                newPost.transform.Find("Info").gameObject.GetComponent<TMP_Text>().text = r + (r > 1 ? " dagen" : " dag") + " geleden geplaatst." ;
+            }
+
             // generate openable posts
             if ((UnityEngine.Random.Range(0,2) == 1 || i > 4) && noticeCount < gameManager.openableContent && gameManager.postBlocks.Count > 0) 
             {
@@ -100,6 +119,7 @@ public class BubblManager : MonoBehaviour
         string currentExplanation = currentPostContent[2].Split(":")[1];
         // Set title
         postObject.transform.Find("User").GetComponent<TMP_Text>().text = currentTitle;
+        ImageLoadHandler(currentTitle, postObject.transform.Find("Image").GetComponent<Image>());
         // Remove used chat
         gameManager.postBlocks.Remove(gameManager.postBlocks[randomPost]);
         // Generate messages from new chat
@@ -110,6 +130,7 @@ public class BubblManager : MonoBehaviour
             newMessage.transform.Find("TextHolder").Find("Sender").GetComponent<TMP_Text>().text = currentPostContent[i].Split(":")[0];
             newMessage.transform.Find("TextHolder").Find("Message").GetComponent<TMP_Text>().text = currentPostContent[i].Split(":")[1];
             newMessage.transform.SetParent(newContent.transform);
+            newMessage.transform.Find("Icon").GetComponent<Image>().sprite = messageIcon;
             newMessage.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         }
         /*for (int i = 0; i < 10; i++)
@@ -122,6 +143,35 @@ public class BubblManager : MonoBehaviour
             newMessage.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         }*/
         activePosts.Add(new PostContentTemplate {postObject = postObject, contentObject = newContent, isAssessed = false, result = currentResult, explanation = currentExplanation});
+    }
+
+    // TODO: Hacky shit as per usual
+    private void ImageLoadHandler(string postTitle, Image targetImage)
+    {
+        if (postTitle.Contains("Proberen voor de theaterclub") || postTitle.Contains("Trying out for the theater club"))
+        {
+            targetImage.sprite = theaterPost;
+        }
+        else if (postTitle.Contains("Begonnen met naar de sportschool gaan") || postTitle.Contains("Started going to the gym"))
+        {
+            targetImage.sprite = gymPost;
+        }
+        else if (postTitle.Contains("Gisteren zelf mijn haar geverfd") || postTitle.Contains("Dyed my hair myself last night"))
+        {
+            targetImage.sprite = hairPost;
+        }
+        else if (postTitle.Contains("Mijn kunst voor het eerst gepost") || postTitle.Contains("Tried posting my art for the first time"))
+        {
+            targetImage.sprite = artPost;
+        }
+        else if (postTitle.Contains("Posten dat ik een doelpunt heb gescoord") || postTitle.Contains("Posting that I scored a goal in"))
+        {
+            targetImage.sprite = footballPost;
+        }
+        else if (postTitle.Contains("Posten dat ik lid ben geworden van de school") || postTitle.Contains("Posting that I joined the school chess"))
+        {
+            targetImage.sprite = chessPost;
+        }
     }
 
     private void PostInteractionHandler(GameObject newPost)
@@ -144,6 +194,25 @@ public class BubblManager : MonoBehaviour
         
         // return to post page
         //StartCoroutine(PageTransitionHandler(postView));
+    }
+
+    public void LanguageHandler()
+    {
+        profileView.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = gameManager.generatedUsername;
+        if (gameManager.selectedLocalization == "en")
+        {
+            profileView.transform.Find("Title").gameObject.GetComponent<TMP_Text>().text = "Profile";
+            profileView.transform.Find("PostsText").gameObject.GetComponent<TMP_Text>().text = "Posts";
+            profileView.transform.Find("FollowerText").gameObject.GetComponent<TMP_Text>().text = "Followers";
+            profileView.transform.Find("FollowingText").gameObject.GetComponent<TMP_Text>().text = "Following";
+        }
+        else
+        {
+            profileView.transform.Find("Title").gameObject.GetComponent<TMP_Text>().text = "Profiel";
+            profileView.transform.Find("PostsText").gameObject.GetComponent<TMP_Text>().text = "Berichten";
+            profileView.transform.Find("FollowerText").gameObject.GetComponent<TMP_Text>().text = "Volgers";
+            profileView.transform.Find("FollowingText").gameObject.GetComponent<TMP_Text>().text = "Volgend";
+        }
     }
 
     private IEnumerator PageTransitionHandler(GameObject targetPage)

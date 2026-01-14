@@ -3,276 +3,282 @@
 :chat:
 title:Eva, Noor, Lotte, Mila;
 result:dangerous;
-explanation:This conversation contains dangerous behaviour!;
-Eva:Did anyone see the pictures from this Friday?;
-Noor:Yeah, some people can really post anything.;
-Lotte:Right? I always triple-check before posting.;
-Mila:Wait, what pictures?;
-Eva:Nothing! Just random stuff on Instagram.;
-Noor:Don’t worry about it.;
-Lotte:Everyone has their own style, I guess.;
-Mila:Okay.;
-Eva:But next time we should definitely coordinate outfits better.;
-Noor:I agree it’s way cuter when everyone’s on the same page.;
-Lotte:Yeah, like when people don’t stick out from the group.;
-Mila:Sorry if I did something wrong.;
-Eva:No, stop being dramatic.;
-Noor:Literally, nobody said your name.;
-Lotte:If the shoe fits.;
-Eva:Oh my gosh, Lotte.;
+explanation:Dit gesprek bevat gevaarlijk gedrag!;
+Eva:Heeft iemand de foto’s van afgelopen vrijdag gezien?;
+Noor:Ja, sommige mensen kunnen echt alles posten.;
+Lotte:Toch? Ik check altijd drie keer voordat ik iets post.;
+Mila:Wacht, welke foto’s?;
+Eva:Niets! Gewoon willekeurige dingen op Instagram.;
+Noor:Maak je er geen zorgen over.;
+Lotte:Iedereen heeft zijn eigen stijl, denk ik.;
+Mila:Oké.;
+Eva:Maar de volgende keer moeten we zeker onze outfits beter afstemmen.;
+Noor:Mee eens, het is veel leuker als iedereen op één lijn zit.;
+Lotte:Ja, zoals wanneer mensen niet uit de groep steken.;
+Mila:Sorry als ik iets verkeerd heb gedaan.;
+Eva:Nee, doe niet zo dramatisch.;
+Noor:Letterlijk niemand heeft je naam genoemd.;
+Lotte:Als de schoen past.;
+Eva:Oh mijn god, Lotte.;
 Noor:Stop.;
-Mila:I’m going to log off for a bit.;
-Eva:Okay.;
-Noor:Okay.;
+Mila:Ik ga even offline.;
+Eva:Oké.;
+Noor:Oké.;
 :chat:
 
 :chat:
 title:Eva, Noor, Lotte, Mila;
 result:dangerous;
-explanation:This conversation contains dangerous behaviour!;
-Eva:are we inviting everyone to lisa’s thing;
-Noor:depends;
-Lotte:yeah last time was kinda awkward;
-Mila:awkward how?;
-Eva:nothing major;
-Noor:just when some people don’t really mix well;
-Lotte:or don’t get the jokes;
+explanation:Dit gesprek bevat gevaarlijk gedrag!;
+Eva:nodigen we iedereen uit voor lisa’s ding;
+Noor:hangt ervan af;
+Lotte:ja de vorige keer was het een beetje ongemakkelijk;
+Mila:ongemakkelijk hoe?;
+Eva:niets groots;
+Noor:gewoon wanneer sommige mensen niet echt goed Mengen;
+Lotte:of de grapjes niet snappen;
 Mila:oh;
-Eva:again not saying names;
-Noor:if it’s not about you, you don’t need to stress;
-Lotte:exactly;
-Mila:i feel like it is though;
-Eva:why do you always think everything’s about you;
-Noor:that’s a bit much;
-Lotte:we’re just being honest;
+Eva:nogmaals, ik noem geen namen;
+Noor:als het niet over jou gaat, hoef je je geen zorgen te maken;
+Lotte:precies;
+Mila:het voelt wel alsof het over mij gaat;
+Eva:waarom denk je altijd dat alles over jou gaat;
+Noor:dat is een beetje veel;
+Lotte:we zijn gewoon eerlijk;
 Mila:sorry;
-Eva:see now the vibe is off;
+Eva:zie je, nu is de sfeer verpest;
 :chat:
 
 :chat:
 title:Sam, Nick, Tom, Leo;
 result:dangerous;
-explanation:This conversation contains dangerous behaviour!;
-Sam:why’d you shove me in the hallway;
-Nick:i didn’t shove you;
-Tom:you definitely bumped him;
-Nick:it was crowded;
-Leo:still, you don’t have to do that;
-Nick:my bad then;
-Sam:you always say that;
-Tom:yeah but it keeps happening;
-Nick:alright, what do you want me to say;
-Leo:just own it;
-Sam:not over text;
-Nick:then what;
-Tom:let’s just talk outside;
-Nick:now?;
-Sam:yeah, after class;
-Leo:near the lockers;
+explanation:Dit gesprek bevat gevaarlijk gedrag!;
+Sam:waarom duwde je me in de gang;
+Nick:ik duwde je niet;
+Tom:je botste zeker tegen hem aan;
+Nick:het was druk;
+Leo:alsnog, dat hoeft niet;
+Nick:mijn fout dan;
+Sam:dat zeg je altijd;
+Tom:ja maar het blijft gebeuren;
+Nick:oké, wat wil je dat ik zeg;
+Leo:neem gewoon verantwoordelijkheid;
+Sam:niet via tekst;
+Nick:wat dan;
+Tom:laten we gewoon buiten praten;
+Nick:nu?;
+Sam:ja, na de les;
+Leo:bij de kluisjes;
 :chat:
 
 :chat:
 title:Mia, Ava, Lily, Zoe;
 result:neutral;
-explanation:This conversation contains neutral behaviour!;
-Mia:did anyone bring snacks;
-Ava:i thought you were bringing them;
-Lily:i brought gum does that count;
-Zoe:absolutely not;
-Ava:harsh;
-Mia:lol it’s fine;
-Lily:vending machine run after class;
-Zoe:say less;
-Ava:hallway one or cafeteria;
-Mia:cafeteria;
-Zoe:meet there in five;
+explanation:Dit gesprek bevat neutraal gedrag!;
+Mia:heeft iemand snacks meegenomen;
+Ava:ik dacht dat jij ze zou meenemen;
+Lily:ik heb kauwgom, telt dat;
+Zoe:absoluut niet;
+Ava:hard;
+Mia:lol is prima;
+Lily:na de les naar de automaat;
+Zoe:zeg minder;
+Ava:die in de gang of de kantine;
+Mia:kantine;
+Zoe:over vijf minuten daar;
 Lily:bet;
 :chat:
 
 :chat:
 title:Emma, Riley, Jade, Chloe;
 result:needs attention;
-explanation:This conversation contains behaviour that needs attention!;
-Emma:are we all wearing the same thing tomorrow;
-Riley:i thought we said neutral;
-Jade:yeah… neutral;
-Chloe:emma your jacket is kinda loud though;
+explanation:Dit gesprek bevat gedrag dat aandacht vereist!;
+Emma:dragen we morgen allemaal hetzelfde;
+Riley:ik dacht dat we neutraal hadden afgesproken;
+Jade:ja… neutral;
+Chloe:emma je jas is wel een beetje opvallend;
 Emma:oh;
-Riley:it’s not bad, just noticeable;
-Jade:we’re trying to keep it low-key;
-Emma:i can change it;
-Chloe:probably better;
-Emma:okay;
-Riley:we’ll look more put together that way;
-Jade:yeah trust us;
-Emma:sure;
+Riley:het is niet slecht, gewoon opvallend;
+Jade:we proberen het rustig te houden;
+Emma:ik kan het veranderen;
+Chloe:waarschijnlijk beter;
+Emma:oké;
+Riley:zo zien we er netter uit;
+Jade:ja vertrouw ons;
+Emma:goed;
 :chat:
 
 :chat:
 title:Harper, Ella, Brooke, Lena;
 result:needs attention;
-explanation:This conversation contains behaviour that needs attention!;
-Harper:are we still sitting together at lunch;
-Ella:we might move today;
-Brooke:yeah it’s kinda crowded;
-Lena:we need more space;
-Harper:oh okay;
-Ella:you can probably sit nearby though;
-Harper:like where;
-Brooke:maybe the end of the table;
-Lena:it’s quieter there;
-Harper:right;
-Ella:it’s not a big deal;
-Harper:yeah;
-Brooke:see you later;
+explanation:Dit gesprek bevat gedrag dat aandacht vereist!;
+Harper:zitten we nog steeds samen tijdens de lunch;
+Ella:we gaan vandaag misschien verplaatsen;
+Brooke:ja het is best druk;
+Lena:we hebben meer ruimte nodig;
+Harper:oh oké;
+Ella:je kunt waarschijnlijk wel in de buurt zitten;
+Harper:waar dan;
+Brooke:misschien aan het einde van de tafel;
+Lena:het is daar rustiger;
+Harper:juist;
+Ella:het is geen groot ding;
+Harper:ja;
+Brooke:tot later;
 :chat:
 
 // Content for Bubbl app posts
 
 :post:
-title:Trying out for the theater club;
+title:Proberen voor de theaterclub;
 result:dangerous;
-explanation:This post's comments section contain dangerous content!;
-Bober:We don’t need more ugly people there.;
-Jeremy67:Trust me, your not welcome.;
-Beanie:Can’t wait to see you perform.;
-Chloe:Why are you posting this?;
-Stacy:You go girl!;
+explanation:De reacties onder dit bericht bevatten gevaarlijke inhoud!;
+Bober:We hebben daar geen lelijke mensen meer nodig.;
+Jeremy67:Geloof me, je bent niet welkom.;
+Beanie:Ik kan niet wachten om je te zien optreden.;
+Chloe:Waarom post je dit?;
+Stacy:Go girl!;
 :post:
 
 :post:
-title:Started going to the gym. \nTime to get some gainzzz #HealthyLifestyle;
+title:Begonnen met naar de sportschool gaan. \nTijd om gains te maken #HealthyLifestyle;
 result:needs attention;
-explanation:This post's comments section contain content that needs attention!;
-Tyler:Nice! See you there!;
-Ben:Bro’s built like a noodle.;
-Jean:Everyone has their start!;
-Dean:Congrats!;
-Jerry:uhh, why?;
+explanation:De reacties onder dit bericht bevatten inhoud die aandacht vereist!;
+Tyler:Nice! Zie je daar!;
+Ben:Bro is gebouwd als een noedel.;
+Jean:Iedereen heeft een begin!;
+Dean:Gefeliciteerd!;
+Jerry:uhh, waarom?;
 :post:
 
 :post:
-title:Dyed my hair myself last night.
-\nFelt cute, might delete later.;
+title:Gisteren zelf mijn haar geverfd.\nVoelde me cute, misschien verwijder ik het later.;
 result:needs attention;
-explanation:This post's comments section contains content that needs attention!;
+explanation:De reacties onder dit bericht bevatten inhoud die aandacht vereist!;
 Jenny:WOW!;
-Christine:Maybe a different color would have been better.;
-Leha:Are you sure this fits you?;
+Christine:Misschien was een andere kleur beter geweest.;
+Leha:Weet je zeker dat dit bij je past?;
 Patricia:Yaaasss;
-Grace:I think the color choice is... A choice.;
+Grace:Ik vind de kleurkeuze wel… een keuze.;
 :post:
 
 :post:
-title:Tried posting my art for the first time.\n#Artist;
+title:Mijn kunst voor het eerst gepost.\n#Artist;
 result:neutral;
-explanation:This post's comments section contains neutral content!;
-Tommy54:Great work!;
-Jimmy61:Upcoming artist right here!;
-Chloe:Line work is a bit rigid but still really good;
+explanation:De reacties op dit bericht bevatten neutrale inhoud!;
+Tommy54:Geweldig werk!;
+Jimmy61:Toekomstige artiest hier!;
+Chloe:De lijnvoering is wat strak maar alsnog erg goed;
 Joey:Nice!;
-Phenelopy:Crazy good!;
+Phenelopy:Bizar goed!;
 :post:
 
 :post:
-title:Posting that I scored a goal in football;
+title:Posten dat ik een doelpunt heb gescoord met voetbal;
 result:dangerous;
-explanation:This post's comments section contains dangerous content!;
-Jake:At least get better shoes.;
-Lily:You are not good;
-Ben:you think this is post worthy?;
-Sofia:Damn you are bad;
+explanation:De reacties onder dit bericht bevatten gevaarlijke inhoud!;
+Jake:Koop tenminste betere schoenen.;
+Lily:Je bent niet goed;
+Ben:denk je dat dit post-waardig is?;
+Sofia:Damn je bent slecht;
 Max:Cringe;
 :post:
 
 :post:
-title:Posting that I joined the school chess club;
+title:Posten dat ik lid ben geworden van de school-schaakclub;
 result:dangerous;
-explanation:This post's comments section contain dangerous content!;
-Tyler_14:Lmao who even plays chess these days?;
+explanation:De reacties onder dit bericht bevatten gevaarlijke inhoud!;
+Tyler_14:Lmao wie speelt er tegenwoordig nog schaak?;
 Mia_09:Nerd;
-JakeXD:Why would you play this? You're dumb XD;
-Sofia_12:This is definetly not for you;
-Avery:I think you are more suited for checkers;
+JakeXD:Waarom zou je dit spelen? Je bent dom XD;
+Sofia_12:Dit is echt niets voor jou;
+Avery:Ik denk dat dammen beter bij je past;
 :post:
 
 // Content for GoodMail app mails
 
 :mail:
-title:Hope to hear from you';
+title:Hoop snel van u te horen;
 result:dangerous;
-explanation:This email contains dangerous content!;
+explanation:Deze e-mail bevat gevaarlijke inhoud!;
 sender:Mrs. Hilary;
-content:My name is Mrs. Hilary from South Africa. \nA cancer patient, married to the late Dr Hilary who was a very successful businessman. \nI am willing to donate a high sum of money to you for charity works in Your Country. Please kindly get back to me for more details if you are interested in handling this offer.
-\n\nBest regards,
-\nMrs. Joyce;
+content:Mijn naam is mevrouw Hilary uit Zuid-Afrika. Ik ben een kankerpatiënt, getrouwd geweest met de overleden dr. Hilary,\n
+ die een zeer succesvolle zakenman was. Ik ben bereid een groot geldbedrag aan u te doneren
+ voor liefdadigheidswerk in uw land. Wilt u alstublieft contact met mij opnemen voor meer details
+ als u geïnteresseerd bent in het afhandelen van dit aanbod.\n\n
+Met vriendelijke groet,\n
+Mevrouw Joyce;
 :mail:
 
 :mail:
-title:bubbl automated notification;
+title:bubbl geautomatiseerde melding;
 result:dangerous;
-explanation:This email contains dangerous content!;
+explanation:Deze e-mail bevat gevaarlijke inhoud!;
 sender:bubbl Security System;
-content:Dear John,
-\nThis is an automated notification from the bubbl Security System. Your account has been flagged for inactivity. To maintain account security and data integrity, inactive accounts are scheduled for automatic deletion after a specified period.
-\nImmediate Action Needed,
-\nLogin to prevent your account from being deactivated and deleted using the link below.
-If you've forgotten your password, follow the prompts after entering your domain at the login screen 
- This is an automated message. Please do not reply.
-\nClick this link to stop it from happening, www.bubblSaveAccount.com/reactivate
-\n
-\nThank you,
-\nbubbl Security Team;
+content:Beste John,\n
+Dit is een automatische melding van het bubbl Beveiligingssysteem. Uw account is gemarkeerd wegens inactiviteit. Om accountbeveiliging en gegevensintegriteit te behouden, worden inactieve accounts na een bepaalde periode automatisch verwijderd.\n
+Onmiddellijke actie vereist\n
+Log in om te voorkomen dat uw account wordt gedeactiveerd en verwijderd via de onderstaande link.
+Als u uw wachtwoord bent vergeten, volg dan de instructies nadat u uw domein heeft ingevoerd op het inlogscherm.\n
+Dit is een automatisch bericht. Gelieve niet te antwoorden.
+Klik op deze link om dit te stoppen www.bubblSaveAccount.com/reactivate\n
+Dank u, 
+bubbl Beveiligingsteam;
 :mail:
 
 :mail:
-title:bubbl password reset;
+title:Wachtwoord opnieuw instellen;
 result:dangerous;
-explanation:This email contains dangerous content!;
+explanation:Deze e-mail bevat gevaarlijke inhoud!;
 sender:bubbl save system;
-content:Hi John,
-\nWe got a request to reset your bubbl password.
-\nIf you didn't request a password reset, immediately click on this link!
-\nwww.bubblSaveAccount.com/changePassword;
+content:Hallo John,\n\n
+We hebben een verzoek ontvangen om uw bubbl-wachtwoord te resetten.\n
+Als u geen wachtwoordreset heeft aangevraagd, klik dan onmiddellijk op deze link!\n
+www.bubblSaveAccount.com/changePassword;
 :mail:
 
 :mail:
 title:Zaptronix Pro;
 result:dangerous;
-explanation:This email contains dangerous content!;
+explanation:Deze e-mail bevat gevaarlijke inhoud!;
 sender:The Zaptronix Team;
-content:Hi,
-\nWe’re excited to introduce Zaptronix Pro, designed to make your daily tasks faster, simpler, and more efficient. With smart automation and real-time tracking, you’ll save hours every week!
-\nTry it today and experience the difference, https//www.zaptronixpro/getproduct/pro
-\n\nBest regards,
-\nThe Zaptronix Team;
+content:Hallo,\n\n
+We zijn verheugd Zaptronix Pro te introduceren, ontworpen om uw dagelijkse taken sneller,
+eenvoudiger en efficiënter te maken. Met slimme automatisering en realtime tracking bespaart u elke week uren!\n\n
+Probeer het vandaag nog en ervaar het verschil,\n
+https://www.zaptronixpro/getproduct/pro\n\n
+Met vriendelijke groet,\n
+Het Zaptronix-team;
 :mail:
 
 :mail:
-title:Suspicious account activity;
+title:Verdachte accountactiviteit;
 result:dangerous;
-explanation:This email contains dangerous content!;
+explanation:Deze e-mail bevat gevaarlijke inhoud!;
 sender:Bubbl support team;
-content:Hello Dear Bubbl user,
-\nThis is Mr. Kevin pennington, Bubbl support for account protection 
-\nWe are experiencing a very serious problem with your account due to,
-\nUntrusted login from South America
-\nTo fix this immediately, please reply with your reset code.
-\nIMPORTANT
-\nDo NOT ignore this email or your account will be, Deleted
-\nIf you do not have a reset code, check spam in your email.
-\n\nThank you for your urgent cooperation.
-\nRespectfully Bubbl support team.;
+content:Hallo beste Bubbl-gebruiker,\n
+Dit is meneer Kevin Pennington, Bubbl-ondersteuning voor accountbescherming.\n
+We ondervinden een zeer ernstig probleem met uw account vanwege,\n
+Niet-vertrouwde inlog vanuit Zuid-Amerika\n
+Om dit onmiddellijk op te lossen, verzoeken wij u te antwoorden met uw resetcode.\n
+BELANGRIJK\n
+Negeer deze e-mail NIET, anders wordt uw account,\n
+Verwijderd\n
+Als u geen resetcode heeft, controleer dan uw spammap.\n
+Dank u voor uw dringende medewerking.\n
+Met respect,\n
+Bubbl ondersteuningsteam;
 :mail:
 
 :mail:
-title:Test email from Riley;
+title:Test-e-mail van Riley;
 result:neutral;
 explanation:This email contains neutral content!;
 sender:Riley;
 content:Hey Jordan,
-\nNot much going on — just wanted to see if this email actually goes through. Nothing you need to do, just a random test from me.
-\nHope your day’s going well!
-\n\nCatch you later,
-\nRiley;
+Niet veel aan de hand — ik wilde gewoon even checken of deze e-mail aankomt.
+Je hoeft niets te doen, gewoon een willekeurige test van mij.\n\n
+Hopelijk gaat je dag goed!\n\n
+Tot later,\n
+Riley;
 :mail:

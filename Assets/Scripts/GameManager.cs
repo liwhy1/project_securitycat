@@ -59,12 +59,18 @@ public class GameManager : MonoBehaviour
     public List<string> chatBlocks;
     public List<string> postBlocks;
     public List<string> mailBlocks;
-    [SerializeField] private int assessmentCorrect;
-    [SerializeField] private int assessmentIncorrect;
+    public int assessmentCorrect;
+    public int assessmentIncorrect;
     [SerializeField] private bool playStartAnimation;
     public string selectedLocalization;
     [SerializeField] private GameObject backgroundMascot;
     public int openableContent;
+    [SerializeField] private GameObject languageSelectorUI;
+    [SerializeField] private TMP_Text languageSelectorTitle;
+    [SerializeField] private Button languageSelectorEnglish;
+    [SerializeField] private Button languageSelectorDutch;
+    [SerializeField] private Button languageSelectorConfirm;
+    public string generatedUsername = "@Lea";
 
     private void OnEnable() => inputManager.Enable();
     private void OnDisable() => inputManager.Disable();
@@ -85,16 +91,11 @@ public class GameManager : MonoBehaviour
         screenWidth = canvasObject.GetComponent<RectTransform>().rect.width;
         canvasLimiterObject.GetComponent<Mask>().enabled = true;
         gridInstance.SetActive(false);
+        languageSelectorUI.SetActive(false);
         selectedLocalization = "en";
         AssessmentVisibilityHandler(false);
         StartCoroutine(StatusBarUpdateHandler());
         StartCoroutine(ScreenWidthUpdateHandler());
-
-        // apply localization
-        LocalizationHandler();
-
-        // parse content file
-        AppContentParseHandler();
 
         // setup buttons
         assessmentReturnButton.onClick.AddListener(delegate { AssessmentVisibilityHandler(false); });
@@ -102,26 +103,12 @@ public class GameManager : MonoBehaviour
         assessmentDangerous.onClick.AddListener(delegate { AssessmentButtonHandler("dangerous"); });
         assessmentAttention.onClick.AddListener(delegate { AssessmentButtonHandler("needs attention"); });
         assessmentNeutral.onClick.AddListener(delegate { AssessmentButtonHandler("neutral"); });
+        languageSelectorEnglish.onClick.AddListener(delegate { LanguageSelectorHandler("english"); });
+        languageSelectorDutch.onClick.AddListener(delegate { LanguageSelectorHandler("dutch"); });
+        languageSelectorConfirm.onClick.AddListener(delegate { LanguageSelectorHandler("confirm"); });
 
         // start animation
-        StartCoroutine(StartAnimationHandler());
-    }
-
-    public void LocalizationHandler()
-    {
-        if (selectedLocalization == "en")
-        {
-            currentAppContents = appContents;
-            assessmentConfirmButton.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Confirm";
-            assessmentReturnButton.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Return";
-        }
-        else
-        {
-            // TODO: finish localization data
-            currentAppContents = appContentsDU;
-            assessmentConfirmButton.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Confirm";
-            assessmentReturnButton.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Return";
-        }
+        LanguageSelectorHandler("start");
     }
 
     private void PointerDownHandler(InputAction.CallbackContext context) => AudioHandler("tap");
@@ -196,6 +183,10 @@ public class GameManager : MonoBehaviour
         chatBlocks = Regex.Matches(cleanLines, @":chat:(.*?):chat:").Select(m => m.Groups[1].Value).ToList();
         postBlocks = Regex.Matches(cleanLines, @":post:(.*?):post:").Select(m => m.Groups[1].Value).ToList();
         mailBlocks = Regex.Matches(cleanLines, @":mail:(.*?):mail:").Select(m => m.Groups[1].Value).ToList();
+
+        // generate random username (this is unreleated)
+        string[] names = {"lea", "eva", "mila", "noor", "tom", "nick", "sam", "lily", "jade"};
+        generatedUsername = "@" + names[UnityEngine.Random.Range(0, name.Length-2)] + UnityEngine.Random.Range(0, 2000);
     }
 
     private IEnumerator StatusBarUpdateHandler()
@@ -253,8 +244,27 @@ public class GameManager : MonoBehaviour
         }
         if (activeApp != null)
         {
-            string contentType = activeApp.name.Contains("Messages") ? "chat" : activeApp.name.Contains("GoodMail") ? "mail" : activeApp.name.Contains("Bubbl") ? "post" : "current";
-            assessmentTitle.text = "Assess results from " + contentType + " content!";
+            // TODO: More hardcoded stuff :)
+            if (selectedLocalization == "en")
+            {
+                string contentType = activeApp.name.Contains("Messages") ? "chat" : activeApp.name.Contains("GoodMail") ? "mail" : activeApp.name.Contains("Bubbl") ? "post" : "current";
+                assessmentTitle.text = "Assess results from " + contentType + " content!";
+                assessmentNeutral.transform.Find("Text (TMP)").GetComponent<TMP_Text>().text = "Neutral";
+                assessmentAttention.transform.Find("Text (TMP)").GetComponent<TMP_Text>().text = "Needs attention";
+                assessmentDangerous.transform.Find("Text (TMP)").GetComponent<TMP_Text>().text = "Dangerous";
+                assessmentConfirmButton.transform.Find("Text").GetComponent<TMP_Text>().text = "Confirm";
+                assessmentReturnButton.transform.Find("Text").GetComponent<TMP_Text>().text = "Return";
+            }
+            else
+            {
+                string contentType = activeApp.name.Contains("Messages") ? "chat" : activeApp.name.Contains("GoodMail") ? "email" : activeApp.name.Contains("Bubbl") ? "bericht" : "huidige";
+                assessmentTitle.text = "Beoordeel resultat van " + contentType + " inhoud!";
+                assessmentNeutral.transform.Find("Text (TMP)").GetComponent<TMP_Text>().text = "Neutraal";
+                assessmentAttention.transform.Find("Text (TMP)").GetComponent<TMP_Text>().text = "Vereist aandacht";
+                assessmentDangerous.transform.Find("Text (TMP)").GetComponent<TMP_Text>().text = "Gevaarlijk";
+                assessmentConfirmButton.transform.Find("Text").GetComponent<TMP_Text>().text = "Bevestigen";
+                assessmentReturnButton.transform.Find("Text").GetComponent<TMP_Text>().text = "Terugkeer";       
+            }
         }
         assessmentElements.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -155.5f, 0f);
         assessmentElements.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
@@ -291,14 +301,28 @@ public class GameManager : MonoBehaviour
         catch {}
         if (!assessmentCorrectResult)
         {
-            assessmentTitle.text = "Incorrect answer!";
+            if (selectedLocalization == "en")
+            {
+                assessmentTitle.text = "Incorrect answer!";
+            }
+            else
+            {
+                assessmentTitle.text = "Verkeerd antwoord!";            
+            }
             assessmentExplanation.gameObject.SetActive(true);
             assessmentExplanation.text = answerExplanation;
             ScoreHandler("incorrect");
         }
         else
         {
-            assessmentTitle.text = "Correct answer!";
+            if (selectedLocalization == "en")
+            {
+                assessmentTitle.text = "Correct answer!";
+            }
+            else
+            {
+                assessmentTitle.text = "Juiste antwoord!";            
+            }
             ScoreHandler("correct");
         }
     }
@@ -341,19 +365,64 @@ public class GameManager : MonoBehaviour
         AppInitializationHandler();
     }
 
+
+    // TODO: Hardcoded mess :)
+    private void LanguageSelectorHandler(string state)
+    {
+        languageSelectorUI.transform.SetParent(canvasObject);
+        languageSelectorUI.GetComponent<RectTransform>().transform.localPosition = new Vector3(0f, -155.5f, 0f);
+        languageSelectorUI.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+        if (state == "start")
+        {
+            startAnimationBlocker.gameObject.SetActive(true);
+            startAnimationIcon.gameObject.SetActive(true);
+            canvasLimiterObject.SetParent(startAnimationBlocker);
+            startAnimationIcon.SetParent(canvasObject);
+            startAnimationIcon.GetComponent<Image>().color = new Color32(255, 255, 255, 0);
+            languageSelectorUI.SetActive(true);
+            currentAppContents = appContents;
+            languageSelectorDutch.gameObject.GetComponent<Image>().color = new Color32(163, 163, 163, 255);
+            languageSelectorEnglish.gameObject.GetComponent<Image>().color = new Color32(36, 36, 36, 255);
+        }
+        else if (state == "english")
+        {
+            currentAppContents = appContents;
+            languageSelectorTitle.text = "Select your language!";
+            languageSelectorConfirm.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Confirm";
+            selectedLocalization = "en";
+            languageSelectorDutch.gameObject.GetComponent<Image>().color = new Color32(163, 163, 163, 255);
+            languageSelectorEnglish.gameObject.GetComponent<Image>().color = new Color32(36, 36, 36, 255);
+        }
+        else if (state == "dutch")
+        {
+            currentAppContents = appContentsDU;
+            languageSelectorTitle.text = "Selecteer uw taal!";
+            languageSelectorConfirm.transform.Find("Text").gameObject.GetComponent<TMP_Text>().text = "Bevestigen";
+            selectedLocalization = "du";
+            languageSelectorEnglish.gameObject.GetComponent<Image>().color = new Color32(163, 163, 163, 255);
+            languageSelectorDutch.gameObject.GetComponent<Image>().color = new Color32(36, 36, 36, 255);
+        }
+        else if (state == "confirm")
+        {
+            languageSelectorUI.SetActive(false);
+
+            // parse content file
+            AppContentParseHandler();
+
+            StartCoroutine(StartAnimationHandler());
+        }
+    }
+
     private IEnumerator StartAnimationHandler()
     {
+        Destroy(languageSelectorUI);
         if (!playStartAnimation)
         {
             Destroy(startAnimationBlocker.gameObject);
             Destroy(startAnimationIcon.gameObject);
             yield break;
         }
-        startAnimationBlocker.gameObject.SetActive(true);
-        startAnimationIcon.gameObject.SetActive(true);
-        canvasLimiterObject.SetParent(startAnimationBlocker);
-        startAnimationIcon.SetParent(canvasObject);
-        startAnimationIcon.GetComponent<Image>().color = new Color32(255, 255, 255, 0);
+
         yield return new WaitForSeconds(.7f);
 
         // animate icon

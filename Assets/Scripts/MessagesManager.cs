@@ -50,6 +50,9 @@ public class MessagesManager : MonoBehaviour
 
         // generate chatview
         ChatViewHandler();
+
+        // apply language preferences
+        LanguageHandler();
     }
 
     private void ChatViewHandler()
@@ -59,7 +62,14 @@ public class MessagesManager : MonoBehaviour
         {
             GameObject newChat = Instantiate(chatInstance, chatInstance.transform.position, Quaternion.identity);
             newChat.name = "newChat";
-            newChat.transform.Find("Sender").GetComponent<TMP_Text>().text = "Group #" + i;
+            if (gameManager.selectedLocalization == "en")
+            {
+                newChat.transform.Find("Sender").GetComponent<TMP_Text>().text = "Group #" + i;
+            }
+            else
+            {
+                newChat.transform.Find("Sender").GetComponent<TMP_Text>().text = "Groep #" + i;
+            }
             newChat.transform.SetParent(chatContent.transform);
             newChat.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
             // generate openable chats
@@ -141,6 +151,27 @@ public class MessagesManager : MonoBehaviour
         
         // return to chat page
         //StartCoroutine(PageTransitionHandler(chatView));
+    }
+
+    public void LanguageHandler()
+    {
+        profileView.transform.Find("User").gameObject.GetComponent<TMP_Text>().text = gameManager.generatedUsername;
+        if (gameManager.selectedLocalization == "en")
+        {
+            profileView.transform.Find("Title").gameObject.GetComponent<TMP_Text>().text = "Profile";
+            profileView.transform.Find("ContactsText").gameObject.GetComponent<TMP_Text>().text = "Contacts";
+            profileView.transform.Find("JoinedText").gameObject.GetComponent<TMP_Text>().text = "Joined";
+            profileView.transform.Find("DescriptionText").gameObject.GetComponent<TMP_Text>().text = "Description";
+            profileView.transform.Find("DescriptionText").transform.Find("DescriptionContent").gameObject.GetComponent<TMP_Text>().text = "This is my description!";
+        }
+        else
+        {
+            profileView.transform.Find("Title").gameObject.GetComponent<TMP_Text>().text = "Profiel";
+            profileView.transform.Find("ContactsText").gameObject.GetComponent<TMP_Text>().text = "Contacten";
+            profileView.transform.Find("JoinedText").gameObject.GetComponent<TMP_Text>().text = "Toegetreden";
+            profileView.transform.Find("DescriptionText").gameObject.GetComponent<TMP_Text>().text = "Beschrijving";
+            profileView.transform.Find("DescriptionText").transform.Find("DescriptionContent").gameObject.GetComponent<TMP_Text>().text = "Dit is mijn beschrijving!";
+        }
     }
 
     private IEnumerator PageTransitionHandler(GameObject targetPage)
